@@ -159,6 +159,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
     Rect rect = new Rect();
     ActionBarPopupWindow optionsWindow;
     FlickerLoadingView globalGradientView;
+    private HintView forwardRestrictedHintView;
     private final int viewType;
 
     public boolean checkPinchToZoom(MotionEvent ev) {
@@ -2966,6 +2967,27 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
         photoVideoAdapter.notifyDataSetChanged();
     }
 
+    private void showForwardRestrictedHint(boolean isChannel) {
+        View frameLayout = profileActivity.getFragmentView();
+        if (profileActivity.getParentActivity() == null || !(frameLayout instanceof FrameLayout) || forwardItem == null) {
+            return;
+        }
+
+        if (forwardRestrictedHintView == null) {
+            forwardRestrictedHintView = new HintView(profileActivity.getParentActivity(), 9);
+            forwardRestrictedHintView.setAlpha(0.0f);
+            forwardRestrictedHintView.setVisibility(View.INVISIBLE);
+            ((FrameLayout) frameLayout).addView(forwardRestrictedHintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 10, 0, 10, 0));
+        }
+
+        if (isChannel) {
+            forwardRestrictedHintView.setText(LocaleController.getString("ChannelMessageForwardingHelp", R.string.ChannelMessageForwardingHelp));
+        } else {
+            forwardRestrictedHintView.setText(LocaleController.getString("PrivateGroupMessageForwardingHelp", R.string.PrivateGroupMessageForwardingHelp));
+        }
+
+        forwardRestrictedHintView.showForView(forwardItem, true);
+    }
 
     private static void showFastScrollHint(MediaPage mediaPage, SharedMediaData[] sharedMediaData, boolean show) {
         if (show) {
@@ -3030,63 +3052,68 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
                 cantDeleteMessagesCount = 0;
             }, null);
         } else if (id == forward) {
-            Bundle args = new Bundle();
-            args.putBoolean("onlySelect", true);
-            args.putInt("dialogsType", 3);
-            DialogsActivity fragment = new DialogsActivity(args);
-            fragment.setDelegate((fragment1, dids, message, param) -> {
-                ArrayList<MessageObject> fmessages = new ArrayList<>();
-                for (int a = 1; a >= 0; a--) {
-                    ArrayList<Integer> ids = new ArrayList<>();
-                    for (int b = 0; b < selectedFiles[a].size(); b++) {
-                        ids.add(selectedFiles[a].keyAt(b));
-                    }
-                    Collections.sort(ids);
-                    for (Integer id1 : ids) {
-                        if (id1 > 0) {
-                            fmessages.add(selectedFiles[a].get(id1));
+            TLRPC.Chat currentChat = profileActivity.getMessagesController().getChat(-dialog_id);
+            if (currentChat != null && currentChat.noforwards) {
+                showForwardRestrictedHint(ChatObject.isChannel(currentChat));
+            } else {
+                Bundle args = new Bundle();
+                args.putBoolean("onlySelect", true);
+                args.putInt("dialogsType", 3);
+                DialogsActivity fragment = new DialogsActivity(args);
+                fragment.setDelegate((fragment1, dids, message, param) -> {
+                    ArrayList<MessageObject> fmessages = new ArrayList<>();
+                    for (int a = 1; a >= 0; a--) {
+                        ArrayList<Integer> ids = new ArrayList<>();
+                        for (int b = 0; b < selectedFiles[a].size(); b++) {
+                            ids.add(selectedFiles[a].keyAt(b));
                         }
+                        Collections.sort(ids);
+                        for (Integer id1 : ids) {
+                            if (id1 > 0) {
+                                fmessages.add(selectedFiles[a].get(id1));
+                            }
+                        }
+                        selectedFiles[a].clear();
                     }
-                    selectedFiles[a].clear();
-                }
-                cantDeleteMessagesCount = 0;
-                showActionMode(false);
+                    cantDeleteMessagesCount = 0;
+                    showActionMode(false);
 
-                if (dids.size() > 1 || dids.get(0) == profileActivity.getUserConfig().getClientUserId() || message != null) {
-                    updateRowsSelection();
-                    for (int a = 0; a < dids.size(); a++) {
-                        long did = dids.get(a);
-                        if (message != null) {
-                            profileActivity.getSendMessagesHelper().sendMessage(message.toString(), did, null, null, null, true, null, null, null, true, 0, null);
+                    if (dids.size() > 1 || dids.get(0) == profileActivity.getUserConfig().getClientUserId() || message != null) {
+                        updateRowsSelection();
+                        for (int a = 0; a < dids.size(); a++) {
+                            long did = dids.get(a);
+                            if (message != null) {
+                                profileActivity.getSendMessagesHelper().sendMessage(message.toString(), did, null, null, null, true, null, null, null, true, 0, null);
+                            }
+                            profileActivity.getSendMessagesHelper().sendMessage(fmessages, did, false, false, true, 0);
                         }
-                        profileActivity.getSendMessagesHelper().sendMessage(fmessages, did, false, false, true, 0);
-                    }
-                    fragment1.finishFragment();
-                } else {
-                    long did = dids.get(0);
-                    Bundle args1 = new Bundle();
-                    args1.putBoolean("scrollToTopOnResume", true);
-                    if (DialogObject.isEncryptedDialog(did)) {
-                        args1.putInt("enc_id", DialogObject.getEncryptedChatId(did));
+                        fragment1.finishFragment();
                     } else {
-                        if (DialogObject.isUserDialog(did)) {
-                            args1.putLong("user_id", did);
+                        long did = dids.get(0);
+                        Bundle args1 = new Bundle();
+                        args1.putBoolean("scrollToTopOnResume", true);
+                        if (DialogObject.isEncryptedDialog(did)) {
+                            args1.putInt("enc_id", DialogObject.getEncryptedChatId(did));
                         } else {
-                            args1.putLong("chat_id", -did);
+                            if (DialogObject.isUserDialog(did)) {
+                                args1.putLong("user_id", did);
+                            } else {
+                                args1.putLong("chat_id", -did);
+                            }
+                            if (!profileActivity.getMessagesController().checkCanOpenChat(args1, fragment1)) {
+                                return;
+                            }
                         }
-                        if (!profileActivity.getMessagesController().checkCanOpenChat(args1, fragment1)) {
-                            return;
-                        }
+
+                        profileActivity.getNotificationCenter().postNotificationName(NotificationCenter.closeChats);
+
+                        ChatActivity chatActivity = new ChatActivity(args1);
+                        fragment1.presentFragment(chatActivity, true);
+                        chatActivity.showFieldPanelForForward(true, fmessages);
                     }
-
-                    profileActivity.getNotificationCenter().postNotificationName(NotificationCenter.closeChats);
-
-                    ChatActivity chatActivity = new ChatActivity(args1);
-                    fragment1.presentFragment(chatActivity, true);
-                    chatActivity.showFieldPanelForForward(true, fmessages);
-                }
-            });
-            profileActivity.presentFragment(fragment);
+                });
+                profileActivity.presentFragment(fragment);
+            }
         } else if (id == gotochat) {
             if (selectedFiles[0].size() + selectedFiles[1].size() != 1) {
                 return;

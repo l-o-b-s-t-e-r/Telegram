@@ -589,8 +589,10 @@
     <string name="GroupSettingsTitle">Group Settings</string>
     <string name="ChannelSettingsTitle">Channel Settings</string>
     <string name="TypePrivate">Private</string>
+    <string name="TypePrivateAndRestricted">Private restricted</string>
     <string name="TypePublic">Public</string>
     <string name="TypePrivateGroup">Private</string>
+    <string name="TypePrivateGroupAndRestricted">Private restricted</string>
     <string name="TypePublicGroup">Public</string>
     <string name="TypeLocationGroup">Link</string>
     <string name="TypeLocationGroupEdit">Tap to add a permanent link</string>
@@ -778,6 +780,8 @@
     <string name="EventLogToggledInvitesOff">un1 disabled group invites</string>
     <string name="EventLogToggledSignaturesOn">un1 enabled signatures</string>
     <string name="EventLogToggledSignaturesOff">un1 disabled signatures</string>
+    <string name="EventLogToggledNoForwardsOn">un1 enabled signatures</string>
+    <string name="EventLogToggledNoForwardsOff">un1 enabled signatures</string>
     <string name="EventLogRestrictedUntil">changed permissions for %1$s\n\nDuration: %2$s</string>
     <string name="EventLogDefaultPermissions">changed default permissions</string>
     <string name="EventLogRestrictedSendStickers">Send stickers &amp; GIFs</string>
@@ -3857,6 +3861,15 @@
     <string name="LinkActionShare">Share</string>
     <string name="InviteRevokedHint">The invite link has been revoked.</string>
     <string name="ExpiredLink">Expired Link</string>
+    <!-- saving content -->
+    <string name="SavingContentTitle">Saving content</string>
+    <string name="SavingContentRestrictionSwitch">Restrict saving content</string>
+    <string name="ChannelSavingContentRestrictionHelp">Participants won\'t be able to forward messages from this channel or save media files.</string>
+    <string name="PrivateGroupSavingContentRestrictionHelp">Participants won\'t be able to forward messages from this group or save media files.</string>
+    <string name="ChannelMessageForwardingHelp">Forwards from this channel are restricted.</string>
+    <string name="PrivateGroupMessageForwardingHelp">Forwards from this group are restricted.</string>
+    <string name="ChannelActionBarMenuForwardingInfo">Forwards from this channel\nare restricted.</string>
+    <string name="PrivateGroupActionBarMenuForwardingInfo">Forwards from this group\nare restricted.</string>
     <!--contacts shortcuts-->
     <string name="ContactShortcutMessage">Message %1$s</string>
     <string name="ContactShortcutVoiceCall">Voice call %1$s</string>

@@ -993,6 +993,34 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
         }
     }
 
+    private void setChatType() {
+        if (typeCell == null) {
+            return;
+        }
+
+        String type;
+        boolean isPrivate = TextUtils.isEmpty(currentChat.username);
+        boolean isPrivateAndRestricted = currentChat.noforwards;
+        if (isChannel) {
+            if (isPrivate) {
+                type = isPrivateAndRestricted ? LocaleController.getString("TypePrivateAndRestricted", R.string.TypePrivateAndRestricted) : LocaleController.getString("TypePrivate", R.string.TypePrivate);
+            } else {
+                type = LocaleController.getString("TypePublic", R.string.TypePublic);
+            }
+        } else {
+            if (isPrivate) {
+                type = isPrivateAndRestricted ? LocaleController.getString("TypePrivateGroupAndRestricted", R.string.TypePrivateGroupAndRestricted) : LocaleController.getString("TypePrivateGroup", R.string.TypePrivateGroup);
+            } else {
+                type = LocaleController.getString("TypePublicGroup", R.string.TypePublicGroup);
+            }
+        }
+        if (isChannel) {
+            typeCell.setTextAndValue(LocaleController.getString("ChannelType", R.string.ChannelType), type, historyCell != null && historyCell.getVisibility() == View.VISIBLE || linkedCell != null && linkedCell.getVisibility() == View.VISIBLE);
+        } else {
+            typeCell.setTextAndValue(LocaleController.getString("GroupType", R.string.GroupType), type, historyCell != null && historyCell.getVisibility() == View.VISIBLE || linkedCell != null && linkedCell.getVisibility() == View.VISIBLE);
+        }
+    }
+
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
         if (id == NotificationCenter.chatInfoDidLoad) {
@@ -1013,6 +1041,13 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
             int mask = (Integer) args[0];
             if ((mask & MessagesController.UPDATE_MASK_AVATAR) != 0) {
                 setAvatar();
+            } else if ((mask & MessagesController.UPDATE_MASK_CHAT) != 0) {
+                TLRPC.Chat chat = getMessagesController().getChat(currentChat.id);
+                if (chat == null) {
+                    return;
+                }
+                currentChat = chat;
+                setChatType();
             }
         }
     }
@@ -1342,17 +1377,7 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
                 }
                 typeCell.setTextAndValue(LocaleController.getString("TypeLocationGroup", R.string.TypeLocationGroup), link, historyCell != null && historyCell.getVisibility() == View.VISIBLE || linkedCell != null && linkedCell.getVisibility() == View.VISIBLE);
             } else {
-                String type;
-                if (isChannel) {
-                    type = isPrivate ? LocaleController.getString("TypePrivate", R.string.TypePrivate) : LocaleController.getString("TypePublic", R.string.TypePublic);
-                } else {
-                    type = isPrivate ? LocaleController.getString("TypePrivateGroup", R.string.TypePrivateGroup) : LocaleController.getString("TypePublicGroup", R.string.TypePublicGroup);
-                }
-                if (isChannel) {
-                    typeCell.setTextAndValue(LocaleController.getString("ChannelType", R.string.ChannelType), type, historyCell != null && historyCell.getVisibility() == View.VISIBLE || linkedCell != null && linkedCell.getVisibility() == View.VISIBLE);
-                } else {
-                    typeCell.setTextAndValue(LocaleController.getString("GroupType", R.string.GroupType), type, historyCell != null && historyCell.getVisibility() == View.VISIBLE || linkedCell != null && linkedCell.getVisibility() == View.VISIBLE);
-                }
+                setChatType();
             }
         }
 

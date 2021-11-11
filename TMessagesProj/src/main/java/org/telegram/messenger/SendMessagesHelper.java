@@ -42,6 +42,8 @@ import androidx.annotation.UiThread;
 import androidx.collection.LongSparseArray;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 
+import com.google.android.exoplayer2.util.Log;
+
 import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
 import org.telegram.messenger.support.SparseLongArray;
@@ -2086,7 +2088,17 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                             }
                             getStatsController().incrementSentItemsCount(ApplicationLoader.getCurrentNetworkType(), StatsController.TYPE_MESSAGES, sentCount);
                         } else {
-                            AndroidUtilities.runOnUIThread(() -> AlertsCreator.processError(currentAccount, error, null, req));
+                            long chatId;
+                            if (msgObj.messageOwner.peer_id instanceof TLRPC.TL_peerChannel) {
+                                chatId = msgObj.messageOwner.peer_id.channel_id;
+                            } else {
+                                chatId = msgObj.messageOwner.peer_id.chat_id;
+                            }
+
+                            AndroidUtilities.runOnUIThread(() -> {
+                                getMessagesController().loadFullChat(chatId, 0, true);
+                                AlertsCreator.processError(currentAccount, error, null, req);
+                            });
                         }
                         for (int a1 = 0; a1 < newMsgObjArr.size(); a1++) {
                             final TLRPC.Message newMsgObj1 = newMsgObjArr.get(a1);

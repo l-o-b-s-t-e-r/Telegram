@@ -118,6 +118,8 @@ import java.util.concurrent.CountDownLatch;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.android.exoplayer2.util.Log;
+
 public class AlertsCreator {
 
     public static Dialog processError(int currentAccount, TLRPC.TL_error error, BaseFragment fragment, TLObject request, Object... args) {
@@ -233,6 +235,17 @@ public class AlertsCreator {
                     break;
                 case "SCHEDULE_TOO_MUCH":
                     showSimpleToast(fragment, LocaleController.getString("MessageScheduledLimitReached", R.string.MessageScheduledLimitReached));
+                    break;
+                case "CHAT_FORWARDS_RESTRICTED":
+                    if (request instanceof TLRPC.TL_messages_forwardMessages) {
+                        long channelId = ((TLRPC.TL_messages_forwardMessages) request).from_peer.channel_id;
+                        TLRPC.Chat chat = MessagesController.getInstance(currentAccount).getChat(channelId);
+                        if (ChatObject.isChannel(chat)) {
+                            showSimpleToast(fragment, LocaleController.getString("ChannelMessageForwardingHelp", R.string.ChannelMessageForwardingHelp));
+                        } else  {
+                            showSimpleToast(fragment, LocaleController.getString("PrivateGroupMessageForwardingHelp", R.string.PrivateGroupMessageForwardingHelp));
+                        }
+                    }
                     break;
             }
         } else if (request instanceof TLRPC.TL_messages_importChatInvite) {

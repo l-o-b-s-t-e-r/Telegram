@@ -3061,6 +3061,7 @@ public class Theme {
     public static final String key_actionBarDefaultSubmenuItem = "actionBarDefaultSubmenuItem";
     public static final String key_actionBarDefaultSubmenuItemIcon = "actionBarDefaultSubmenuItemIcon";
     public static final String key_actionBarDefaultSubmenuBackground = "actionBarDefaultSubmenuBackground";
+    public static final String key_actionBarDefaultPopupBackground = "actionBarDefaultPopupBackground";
     public static final String key_actionBarTabActiveText = "actionBarTabActiveText";
     public static final String key_actionBarTabUnactiveText = "actionBarTabUnactiveText";
     public static final String key_actionBarTabLine = "actionBarTabLine";
@@ -3913,6 +3914,7 @@ public class Theme {
         defaultColors.put(key_actionBarDefaultSubmenuItem, 0xff222222);
         defaultColors.put(key_actionBarDefaultSubmenuItemIcon, 0xff676b70);
         defaultColors.put(key_actionBarDefaultSubmenuBackground, 0xffffffff);
+        defaultColors.put(key_actionBarDefaultPopupBackground, 0x00000000);
         defaultColors.put(key_actionBarActionModeDefaultSelector, 0xffe2e2e2);
         defaultColors.put(key_actionBarTabActiveText, 0xffffffff);
         defaultColors.put(key_actionBarTabUnactiveText, 0xffd5e8f7);
@@ -5857,10 +5859,17 @@ public class Theme {
         private float[] radii = new float[8];
         private int topRad;
         private int bottomRad;
+        private Paint paintRad;
 
         public RippleRadMaskDrawable(int top, int bottom) {
             topRad = top;
             bottomRad = bottom;
+        }
+
+        public RippleRadMaskDrawable(Paint paint, int top, int bottom) {
+            topRad = top;
+            bottomRad = bottom;
+            paintRad = paint;
         }
 
         public void setRadius(int top, int bottom) {
@@ -5875,7 +5884,7 @@ public class Theme {
             radii[4] = radii[5] = radii[6] = radii[7] = AndroidUtilities.dp(bottomRad);
             rect.set(getBounds());
             path.addRoundRect(rect, radii, Path.Direction.CW);
-            canvas.drawPath(path, maskPaint);
+            canvas.drawPath(path, paintRad == null ? maskPaint : paintRad);
         }
 
         @Override
@@ -5908,6 +5917,25 @@ public class Theme {
                     break;
                 }
             }
+        }
+    }
+
+    public static Drawable createRadSelectorDrawable(int solidColor, int rippleColor, int topRad, int bottomRad) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(solidColor);
+            Drawable maskDrawable = new RippleRadMaskDrawable(paint, topRad, bottomRad);
+            ColorStateList colorStateList = new ColorStateList(
+                    new int[][]{StateSet.WILD_CARD},
+                    new int[]{rippleColor}
+            );
+            return new RippleDrawable(colorStateList, maskDrawable, maskDrawable);
+        } else {
+            StateListDrawable stateListDrawable = new StateListDrawable();
+            stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(rippleColor));
+            stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(rippleColor));
+            stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(solidColor));
+            return stateListDrawable;
         }
     }
 

@@ -29,6 +29,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
     private int textColor;
     private int iconColor;
+    private int itemBackgroundColor;
     private int selectorColor;
 
     boolean top;
@@ -58,6 +59,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
         textColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItem);
         iconColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon);
+        itemBackgroundColor = getThemedColor(Theme.key_actionBarDefaultSubmenuBackground);
         selectorColor = getThemedColor(Theme.key_dialogButtonSelector);
 
         updateBackground();
@@ -208,6 +210,13 @@ public class ActionBarMenuSubItem extends FrameLayout {
         return imageView;
     }
 
+    public void setItemBackgroundColor(int itemBackgroundColor) {
+        if (this.itemBackgroundColor != itemBackgroundColor) {
+            this.itemBackgroundColor = itemBackgroundColor;
+            updateBackground();
+        }
+    }
+
     public void setSelectorColor(int selectorColor) {
         if (this.selectorColor != selectorColor) {
             this.selectorColor = selectorColor;
@@ -227,7 +236,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
     void updateBackground() {
         int topBackgroundRadius = top ? 6 : 0;
         int bottomBackgroundRadius = bottom ? 6 : 0;
-        setBackground(Theme.createRadSelectorDrawable(selectorColor, topBackgroundRadius, bottomBackgroundRadius));
+        setBackground(Theme.createRadSelectorDrawable(itemBackgroundColor, selectorColor, topBackgroundRadius, bottomBackgroundRadius));
     }
 
     private int getThemedColor(String key) {
