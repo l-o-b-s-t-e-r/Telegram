@@ -20013,10 +20013,12 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             popupLayout.setBackgroundColor(getThemedColor(Theme.key_actionBarDefaultPopupBackground));
 
             scrimPopupWindowItems = new ActionBarMenuSubItem[items.size() + (selectedObject.isSponsored() ? 1 : 0) + (isForwardRestricted() ? 1 : 0)];
+            int scrimPopupItemsBackgroundColor = getThemedColor(Theme.key_actionBarDefaultSubmenuBackground);
             for (int a = 0, N = items.size(); a < N; a++) {
                 if (a == 0 && selectedObject.isSponsored()) {
                     ActionBarMenuSubItem cell = new ActionBarMenuSubItem(getParentActivity(), true, true, themeDelegate);
                     cell.setTextAndIcon(LocaleController.getString("SponsoredMessageInfo", R.string.SponsoredMessageInfo), R.drawable.menu_info);
+                    cell.setItemBackgroundColor(scrimPopupItemsBackgroundColor);
                     cell.setItemHeight(56);
                     cell.setTag(R.id.width_tag, 240);
                     cell.setMultiline();
@@ -20047,6 +20049,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 ActionBarMenuSubItem cell = new ActionBarMenuSubItem(getParentActivity(), a == 0, a == N - 1, themeDelegate);
                 cell.setMinimumWidth(AndroidUtilities.dp(200));
                 cell.setTextAndIcon(items.get(a), icons.get(a));
+                cell.setItemBackgroundColor(scrimPopupItemsBackgroundColor);
                 Integer option = options.get(a);
                 if (option == 1 && selectedObject.messageOwner.ttl_period != 0) {
                     menuDeleteItem = cell;
@@ -20088,6 +20091,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     } else {
                         forwardRestrictedCell.setText(LocaleController.getString("PrivateGroupActionBarMenuForwardingInfo", R.string.PrivateGroupActionBarMenuForwardingInfo));
                     }
+                    forwardRestrictedCell.setItemBackgroundColor(scrimPopupItemsBackgroundColor);
                     forwardRestrictedCell.setItemHeight(56);
                     forwardRestrictedCell.setTag(R.id.width_tag, 240);
                     forwardRestrictedCell.setMultiline();

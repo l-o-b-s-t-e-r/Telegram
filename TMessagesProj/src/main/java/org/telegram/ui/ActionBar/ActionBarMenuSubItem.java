@@ -3,6 +3,7 @@ package org.telegram.ui.ActionBar;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -28,6 +29,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
     private int textColor;
     private int iconColor;
     private int itemBackgroundColor;
+    private boolean useOwnItemBackgroundColor;
     private int selectorColor;
 
     boolean top;
@@ -57,7 +59,6 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
         textColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItem);
         iconColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon);
-        itemBackgroundColor = getThemedColor(Theme.key_actionBarDefaultSubmenuBackground);
         selectorColor = getThemedColor(Theme.key_dialogButtonSelector);
 
         updateBackground();
@@ -209,6 +210,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
     }
 
     public void setItemBackgroundColor(int itemBackgroundColor) {
+        useOwnItemBackgroundColor = true;
         if (this.itemBackgroundColor != itemBackgroundColor) {
             this.itemBackgroundColor = itemBackgroundColor;
             updateBackground();
@@ -234,7 +236,11 @@ public class ActionBarMenuSubItem extends FrameLayout {
     void updateBackground() {
         int topBackgroundRadius = top ? 6 : 0;
         int bottomBackgroundRadius = bottom ? 6 : 0;
-        setBackground(Theme.createRadSelectorDrawable(itemBackgroundColor, selectorColor, topBackgroundRadius, bottomBackgroundRadius));
+        if (useOwnItemBackgroundColor) {
+            setBackground(Theme.createRadSelectorDrawable(itemBackgroundColor, selectorColor, topBackgroundRadius, bottomBackgroundRadius));
+        } else {
+            setBackground(Theme.createRadSelectorDrawable(selectorColor, topBackgroundRadius, bottomBackgroundRadius));
+        }
     }
 
     private int getThemedColor(String key) {
