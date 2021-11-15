@@ -3695,6 +3695,7 @@
     <string name="VoipGroupJoinAs">Join Voice Chat as...</string>
     <string name="VoipChannelJoinAs">Join Live Stream as...</string>
     <string name="VoipGroupDisplayAs">Display me as...</string>
+    <string name="SendMessageAs">Send message as...</string>
     <string name="VoipGroupStartAsInfo">Choose whether you want to be displayed as your personal account or as your channel.</string>
     <string name="VoipGroupStartAsInfoGroup">Choose whether you want to be displayed as your personal account, this group, or one of your channels.</string>
     <string name="VoipGroupContinueAs">Continue as %1$s</string>

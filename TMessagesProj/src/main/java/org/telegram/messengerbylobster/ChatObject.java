@@ -1482,6 +1482,10 @@ public class ChatObject {
         return chat instanceof TLRPC.TL_channel || chat instanceof TLRPC.TL_channelForbidden;
     }
 
+    public static boolean isSendAsAvailable(TLRPC.Chat chat) {
+        return chat instanceof TLRPC.TL_channel && (chat.megagroup && chat.username != null && !chat.username.isEmpty() || chat.has_geo || chat.megagroup && chat.has_link);
+    }
+
     public static boolean isChannelOrGiga(TLRPC.Chat chat) {
         return (chat instanceof TLRPC.TL_channel || chat instanceof TLRPC.TL_channelForbidden) && (!chat.megagroup || chat.gigagroup);
     }
@@ -1548,7 +1552,7 @@ public class ChatObject {
     }
 
     public static boolean shouldSendAnonymously(TLRPC.Chat chat) {
-        return chat != null && chat.admin_rights != null && chat.admin_rights.anonymous;
+        return chat != null && chat.admin_rights != null && chat.admin_rights.anonymous && !isSendAsAvailable(chat);
     }
 
     public static boolean canAddBotsToChat(TLRPC.Chat chat) {

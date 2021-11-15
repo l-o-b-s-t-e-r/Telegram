@@ -23,6 +23,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.annotation.Keep;
+
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,7 +85,7 @@ public class ActionBarPopupWindow extends PopupWindow {
         void onDispatchKeyEvent(KeyEvent keyEvent);
     }
 
-    public static class ActionBarPopupWindowLayout extends FrameLayout {
+    public static class ActionBarPopupWindowLayout extends LinearLayout {
 
         private OnDispatchKeyEventListener mOnDispatchKeyEventListener;
         private float backScaleX = 1;
@@ -100,6 +102,8 @@ public class ActionBarPopupWindow extends PopupWindow {
 
         private ScrollView scrollView;
         protected LinearLayout linearLayout;
+        private View fixedView;
+        private int maxHeight = Integer.MAX_VALUE;
 
         private int backgroundColor = Color.WHITE;
         protected Drawable backgroundDrawable;
@@ -112,12 +116,20 @@ public class ActionBarPopupWindow extends PopupWindow {
         }
 
         public ActionBarPopupWindowLayout(Context context, Theme.ResourcesProvider resourcesProvider) {
-            this(context, R.drawable.popup_fixed_alert2, resourcesProvider);
+            this(context, R.drawable.popup_fixed_alert2, null, resourcesProvider);
+        }
+
+        public ActionBarPopupWindowLayout(Context context, View fixedView, Theme.ResourcesProvider resourcesProvider) {
+            this(context, R.drawable.popup_fixed_alert2, fixedView, resourcesProvider);
         }
 
         public ActionBarPopupWindowLayout(Context context, int resId, Theme.ResourcesProvider resourcesProvider) {
+            this(context, resId, null, resourcesProvider);
+        }
+        public ActionBarPopupWindowLayout(Context context, int resId, View fixedView, Theme.ResourcesProvider resourcesProvider) {
             super(context);
             this.resourcesProvider = resourcesProvider;
+            this.fixedView = fixedView;
 
             backgroundDrawable = getResources().getDrawable(resId).mutate();
             if (backgroundDrawable != null) {
@@ -128,10 +140,14 @@ public class ActionBarPopupWindow extends PopupWindow {
             setPadding(AndroidUtilities.dp(8), AndroidUtilities.dp(8), AndroidUtilities.dp(8), AndroidUtilities.dp(8));
             setWillNotDraw(false);
 
+            if (fixedView != null) {
+                super.addView(fixedView, 0, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT));
+            }
+
             try {
                 scrollView = new ScrollView(context);
                 scrollView.setVerticalScrollBarEnabled(false);
-                addView(scrollView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+                addView(scrollView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP));
             } catch (Throwable e) {
                 FileLog.e(e);
             }
@@ -184,10 +200,24 @@ public class ActionBarPopupWindow extends PopupWindow {
             } else {
                 addView(linearLayout, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
             }
+
+            setOrientation(LinearLayout.VERTICAL);
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            if (MeasureSpec.getSize(heightMeasureSpec) > maxHeight) {
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST);
+            }
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
         public void setFitItems(boolean value) {
             fitItems = value;
+        }
+
+        public void setMaxHeight(int value) {
+            maxHeight = value;
         }
 
         public void setShownFromBotton(boolean value) {
@@ -380,6 +410,10 @@ public class ActionBarPopupWindow extends PopupWindow {
             return linearLayout.getChildCount();
         }
 
+        public boolean isEmpty() {
+            return getItemsCount() == 0;
+        }
+
         public View getItemAt(int index) {
             return linearLayout.getChildAt(index);
         }
@@ -434,6 +468,10 @@ public class ActionBarPopupWindow extends PopupWindow {
         private int getThemedColor(String key) {
             Integer color = resourcesProvider != null ? resourcesProvider.getColor(key) : null;
             return color != null ? color : Theme.getColor(key);
+        }
+
+        public View getFixedView() {
+            return fixedView;
         }
     }
 

@@ -68,6 +68,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.webkit.MimeTypeMap;
@@ -116,6 +117,7 @@ import org.telegram.messengerbylobster.Utilities;
 import org.telegram.messengerbylobster.VideoEditedInfo;
 import org.telegram.messengerbylobster.camera.CameraController;
 import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenuSubItem;
@@ -124,6 +126,7 @@ import org.telegram.ui.ActionBar.AdjustPanLayoutHelper;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Cells.GroupCreateUserCell;
 import org.telegram.ui.ChatActivity;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.GroupStickersActivity;
@@ -219,6 +222,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     private final static int RECORD_STATE_PREPARING = 3;
     private final static int RECORD_STATE_CANCEL_BY_TIME = 4;
     private final static int RECORD_STATE_CANCEL_BY_GESTURE = 5;
+    private final int MAX_SENDERS_COUNT = 10;
 
 
     private int currentAccount = UserConfig.selectedAccount;
@@ -248,6 +252,38 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     private float searchToOpenProgress;
 
     private HashMap<View, Float> animationParamsX = new HashMap<>();
+
+    private GroupCreateUserCell.GroupCreateUserCellCompositor sendAsCellCompositor = new GroupCreateUserCell.GroupCreateUserCellCompositor() {
+        @Override
+        public int getAvatarSize() {
+            return 38;
+        }
+
+        @Override
+        public int circleRadius() {
+            return 15;
+        }
+
+        @Override
+        public int topMarginNameText() {
+            return 6;
+        }
+
+        @Override
+        public int topMarginStatusText() {
+            return 28;
+        }
+
+        @Override
+        public int leftMarginText() {
+            return LocaleController.isRTL ? 20 : 64;
+        }
+
+        @Override
+        public int rightMarginText() {
+            return LocaleController.isRTL ? 64 : 20;
+        }
+    };
 
     private class SeekBarWaveformView extends View {
 
@@ -322,7 +358,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     private Drawable inactinveSendButtonDrawable;
     private Drawable sendButtonInverseDrawable;
     private ActionBarPopupWindow sendPopupWindow;
+    private ActionBarPopupWindow senderPopupWindow;
     private ActionBarPopupWindow.ActionBarPopupWindowLayout sendPopupLayout;
+    private ActionBarPopupWindow.ActionBarPopupWindowLayout senderPopupLayout;
     private ImageView cancelBotButton;
     private ImageView[] emojiButton = new ImageView[2];
     @SuppressWarnings("FieldCanBeLocal")
@@ -381,6 +419,10 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     protected int animatedTop;
     public ValueAnimator currentTopViewAnimation;
     private ReplaceableIconDrawable botButtonDrawable;
+    private FrameLayout senderAvatarHolder;
+    private BackupImageView senderAvatarImageView;
+    private AvatarDrawable senderAvatarDrawable;
+    private ImageView closeSenderPopup;
 
     private CharSequence draftMessage;
     private boolean draftSearchWebpage;
@@ -393,6 +435,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     private boolean editingCaption;
 
     private TLRPC.ChatFull info;
+    private TLObject defaultSender;
 
     private boolean hasRecordVideo;
 
@@ -439,6 +482,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     private boolean lastSizeChangeValue2;
 
     private int[] location = new int[2];
+    private int[] senderAvatarLocation = new int[2];
 
     private Activity parentActivity;
     private ChatActivity parentFragment;
@@ -1726,6 +1770,21 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
         frameLayout.setClipChildren(false);
         textFieldContainer.addView(frameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM, 0, 0, 48, 0));
 
+        senderAvatarHolder = new FrameLayout(context);
+        senderAvatarDrawable = new AvatarDrawable();
+        senderAvatarImageView = new BackupImageView(context);
+        senderAvatarImageView.setRoundRadius(AndroidUtilities.dp(24));
+
+        closeSenderPopup = new ImageView(context);
+        closeSenderPopup.setImageResource(R.drawable.msg_round_cancel_m);
+        closeSenderPopup.setBackgroundDrawable(Theme.createCircleDrawable(30, Theme.getColor(Theme.key_chat_messagePanelSend)));
+
+        senderAvatarHolder.setOnClickListener(this::onSenderAvatarClick);
+        senderAvatarHolder.addView(closeSenderPopup, LayoutHelper.createFrame(30, 30, Gravity.CENTER, 0, 0, 0, 0));
+        senderAvatarHolder.addView(senderAvatarImageView, LayoutHelper.createFrame(30, 30, Gravity.CENTER, 0, 0, 0, 0));
+        senderAvatarHolder.setVisibility(View.GONE);
+        frameLayout.addView(senderAvatarHolder, LayoutHelper.createFrame(48, 48, Gravity.CENTER_VERTICAL | Gravity.LEFT, 0, 0, 0, 0));
+
         for (int a = 0; a < 2; a++) {
             emojiButton[a] = new ImageView(context) {
                 @Override
@@ -1948,6 +2007,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                             PhotoViewer.getInstance().setParentActivity(parentActivity, resourcesProvider);
                             PhotoViewer.getInstance().openPhotoForSelect(entries, 0, 2, false, new PhotoViewer.EmptyPhotoViewerProvider() {
                                 boolean sending;
+
                                 @Override
                                 public void sendButtonPressed(int index, VideoEditedInfo videoEditedInfo, boolean notify, int scheduleDate, boolean forceDocument) {
                                     ArrayList<SendMessagesHelper.SendingMediaInfo> photos = new ArrayList<>();
@@ -2586,8 +2646,8 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                     return false;
                 }
                 if (parentFragment != null) {
-                    TLRPC.Chat chat = parentFragment.getCurrentChat();
-                    if (chat != null && !ChatObject.canSendMedia(chat)) {
+                    TLRPC.Chat chat2 = parentFragment.getCurrentChat();
+                    if (chat2 != null && !ChatObject.canSendMedia(chat2)) {
                         delegate.needShowMediaBanHint();
                         return false;
                     }
@@ -3061,6 +3121,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     }
 
     Paint backgroundPaint = new Paint();
+
     @Override
     protected void onDraw(Canvas canvas) {
         int top = animatedTop;
@@ -3078,6 +3139,33 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     @Override
     public boolean hasOverlappingRendering() {
         return false;
+    }
+
+    private void onSenderAvatarClick(View view) {
+        if (senderPopupLayout == null || senderPopupWindow == null) {
+            return;
+        }
+
+        senderAvatarImageView.setVisibility(View.INVISIBLE);
+        AnimatorSet appearingSet = new AnimatorSet();
+        appearingSet.setDuration(200);
+        appearingSet.playTogether(
+                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 0f,1f),
+                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 0f,1f),
+                ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 0f,1f)
+        );
+        appearingSet.start();
+
+        senderPopupLayout.measure(MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(1000), MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(1000), MeasureSpec.AT_MOST));
+        senderPopupWindow.setFocusable(true);
+        view.getLocationInWindow(senderAvatarLocation);
+        int y;
+        if (keyboardVisible && ChatActivityEnterView.this.getMeasuredHeight() > AndroidUtilities.dp(topView != null && topView.getVisibility() == VISIBLE ? 48 + 58 : 58)) {
+            y = senderAvatarLocation[1] + view.getMeasuredHeight();
+        } else {
+            y = senderAvatarLocation[1] - senderPopupLayout.getMeasuredHeight() - AndroidUtilities.dp(2);
+        }
+        senderPopupWindow.showAtLocation(view, Gravity.LEFT | Gravity.TOP, senderAvatarLocation[0] + view.getMeasuredWidth() - senderPopupLayout.getMeasuredWidth() + AndroidUtilities.dp(8), y);
     }
 
     private boolean onSendLongClick(View view) {
@@ -3934,6 +4022,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                     ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 1.0f),
                     ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 1.0f),
                     ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1.0f),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 1.0f),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 1.0f),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 1.0f),
                     ObjectAnimator.ofFloat(recordDeleteImageView, View.ALPHA, 0.0f),
                     ObjectAnimator.ofFloat(recordDeleteImageView, View.SCALE_X, 0.0f),
                     ObjectAnimator.ofFloat(recordDeleteImageView, View.SCALE_Y, 0.0f),
@@ -4033,7 +4124,11 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
 
                     ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 1.0f),
                     ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 1.0f),
-                    ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1.0f)
+                    ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1.0f),
+
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 1.0f),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 1.0f),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 1.0f)
             );
 
             if (botCommandsMenuButton != null) {
@@ -5088,6 +5183,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                     ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 0),
                     ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 0),
                     ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 0),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 0),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 0),
+                    ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 0),
                     ObjectAnimator.ofFloat(recordDot, View.SCALE_Y, 1),
                     ObjectAnimator.ofFloat(recordDot, View.SCALE_X, 1),
                     ObjectAnimator.ofFloat(recordTimerView, View.TRANSLATION_X, 0),
@@ -5208,6 +5306,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 1),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_Y, 0),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_X, 0),
                         ObjectAnimator.ofFloat(recordCircle, recordCircleScale, 0.0f),
@@ -5333,6 +5434,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                         ObjectAnimator.ofFloat(emojiButton[0], View.SCALE_Y, 0),
                         ObjectAnimator.ofFloat(emojiButton[0], View.SCALE_X, 0),
                         ObjectAnimator.ofFloat(emojiButton[0], View.ALPHA, 0),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 0),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 0),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 0),
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 0),
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 0),
                         ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 0),
@@ -5443,6 +5547,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 1),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_Y, 0),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_X, 0)
                 );
@@ -5599,6 +5706,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_Y, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.SCALE_X, 1),
                         ObjectAnimator.ofFloat(emojiButton[1], View.ALPHA, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_Y, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.SCALE_X, 1),
+                        ObjectAnimator.ofFloat(senderAvatarHolder, View.ALPHA, 1),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_Y, 0),
                         ObjectAnimator.ofFloat(recordDot, View.SCALE_X, 0),
                         ObjectAnimator.ofFloat(audioVideoButtonContainer, View.ALPHA, 1.0f)
@@ -8398,6 +8508,198 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     int botCommandLastPosition = -1;
     int botCommandLastTop;
 
+    public void setupDefaultSender() {
+        TLRPC.Chat channel = parentFragment.getCurrentChat();
+        TLRPC.ChatFull chatInfo = parentFragment.getCurrentChatInfo();
+
+        if (ChatObject.isSendAsAvailable(channel) && chatInfo != null) {
+            if (channel.has_geo || (channel.megagroup && ((channel.username != null && !channel.username.isEmpty()) || channel.has_link))) {
+                TLRPC.Peer peer = chatInfo.default_send_as;
+                if (peer instanceof TLRPC.TL_peerUser) {
+                    defaultSender = accountInstance.getMessagesController().getUser(peer.user_id);
+                } else if (peer instanceof TLRPC.TL_peerChannel) {
+                    defaultSender = accountInstance.getMessagesController().getChat(peer.channel_id);
+                }
+
+                senderAvatarDrawable.setInfo(defaultSender);
+                senderAvatarImageView.setForUserOrChat(defaultSender, senderAvatarDrawable);
+                senderAvatarHolder.setVisibility(View.VISIBLE);
+
+                if (senderPopupLayout == null) {
+                    ActionBarMenuSubItem cellHeader = new ActionBarMenuSubItem(getContext(), false, false, resourcesProvider);
+                    cellHeader.setText(LocaleController.getString("SendMessageAs", R.string.SendMessageAs));
+                    cellHeader.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                    cellHeader.setTextColor(resourcesProvider.getColor(Theme.key_windowBackgroundWhiteBlueHeader));
+
+                    senderPopupLayout = new ActionBarPopupWindow.ActionBarPopupWindowLayout(parentActivity, cellHeader, resourcesProvider);
+                    senderPopupLayout.setAnimationEnabled(false);
+                    senderPopupLayout.setOnTouchListener(new OnTouchListener() {
+                        private Rect popupRect = new Rect();
+
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                                if (senderPopupWindow != null && senderPopupWindow.isShowing()) {
+                                    v.getHitRect(popupRect);
+                                    if (!popupRect.contains((int) event.getX(), (int) event.getY())) {
+                                        senderPopupWindow.dismiss();
+                                    }
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                    senderPopupLayout.setDispatchKeyEventListener(keyEvent -> {
+                        if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK && keyEvent.getRepeatCount() == 0 && senderPopupWindow != null && senderPopupWindow.isShowing()) {
+                            senderPopupWindow.dismiss();
+                        }
+                    });
+                    senderPopupLayout.setMaxHeight(AndroidUtilities.dp(420));
+                    senderPopupLayout.setShownFromBotton(false);
+                }
+
+                TLRPC.TL_channels_getSendAs reqGetSendAs = new TLRPC.TL_channels_getSendAs();
+                reqGetSendAs.peer = accountInstance.getMessagesController().getInputPeer(dialog_id);
+                accountInstance.getConnectionsManager().sendRequest(reqGetSendAs, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
+                    senderPopupLayout.removeInnerViews();
+                    if (response instanceof TLRPC.TL_channels_sendAsPeers) {
+                        List<TLRPC.Peer> peers = ((TLRPC.TL_channels_sendAsPeers) response).peers;
+                        for (int i = 0, N = Math.min(peers.size(), MAX_SENDERS_COUNT); i < N; i++) {
+                            TLRPC.Peer currentPeer = peers.get(i);
+                            long did = MessageObject.getPeerId(currentPeer);
+                            TLObject userOrChat;
+                            String name;
+                            String status;
+                            if (did > 0) {
+                                userOrChat = accountInstance.getMessagesController().getUser(did);
+                                if (userOrChat == null) {
+                                    continue;
+                                }
+                                name = UserObject.getUserName((TLRPC.User) userOrChat);
+                                status = LocaleController.getString("VoipGroupPersonalAccount", R.string.VoipGroupPersonalAccount);
+                            } else {
+                                userOrChat = accountInstance.getMessagesController().getChat(-did);
+                                if (userOrChat == null) {
+                                    continue;
+                                }
+                                TLRPC.Chat chat = (TLRPC.Chat) userOrChat;
+                                TLRPC.ChatFull chatFull = accountInstance.getMessagesController().getChatFull(-did);
+                                name = chat.title;
+                                status = LocaleController.formatPluralStringComma("Subscribers", chatFull != null ? chatFull.participants_count : chat.participants_count);
+                                accountInstance.getMessagesController().loadFullChat(chat.id, 0, false);
+                            }
+
+                            GroupCreateUserCell cell = new GroupCreateUserCell(getContext(), 2, 0, false, sendAsCellCompositor);
+                            cell.setObject(userOrChat, name, status, false);
+                            cell.setChecked(did == MessageObject.getPeerId(peer), false);
+                            cell.setOnClickListener(view -> {
+                                for (int j = 0, M = senderPopupLayout.getItemsCount(); j < M; j++) {
+                                    View senderView = senderPopupLayout.getItemAt(j);
+                                    if (senderView instanceof GroupCreateUserCell) {
+                                        GroupCreateUserCell senderCell = (GroupCreateUserCell) senderView;
+                                        if (senderCell.isChecked()) {
+                                            senderCell.setChecked(false, true);
+                                            break;
+                                        }
+                                    }
+                                }
+                                cell.setChecked(true, true);
+
+                                defaultSender = userOrChat;
+                                accountInstance.getMessagesController().updateChatDefaultSendAs(info, dialog_id, currentPeer);
+
+                                if (senderPopupWindow != null) {
+                                    int[] selectedCellWindowLocation = new int[2];
+                                    cell.getAvatarImageView().getLocationInWindow(selectedCellWindowLocation);
+
+                                    int[] selectedCellScreenLocation = new int[2];
+                                    cell.getAvatarImageView().getLocationOnScreen(selectedCellScreenLocation);
+
+                                    FrameLayout selectedAvatarWrapper = new FrameLayout(getContext());
+                                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT);
+                                    selectedAvatarWrapper.setLayoutParams(params);
+
+                                    BackupImageView avatarCopy = new BackupImageView(getContext());
+                                    avatarCopy.setRoundRadius(AndroidUtilities.dp(24));
+                                    senderAvatarDrawable.setInfo(defaultSender);
+                                    avatarCopy.setForUserOrChat(defaultSender, senderAvatarDrawable);
+
+                                    selectedAvatarWrapper.addView(avatarCopy, LayoutHelper.createFrame(30, 30, Gravity.TOP | Gravity.END));
+
+                                    int selectedAvatarPopupHeight = senderPopupLayout.getHeight() - selectedCellWindowLocation[1] + senderAvatarHolder.getMeasuredHeight() - AndroidUtilities.dp(2);
+                                    ActionBarPopupWindow selectedAvatarPopupWindow = new ActionBarPopupWindow(selectedAvatarWrapper, selectedCellWindowLocation[0] + AndroidUtilities.dp(34), selectedAvatarPopupHeight);
+                                    selectedAvatarPopupWindow.setAnimationEnabled(false);
+                                    selectedAvatarPopupWindow.setOutsideTouchable(true);
+                                    selectedAvatarPopupWindow.setClippingEnabled(true);
+                                    selectedAvatarPopupWindow.setInputMethodMode(ActionBarPopupWindow.INPUT_METHOD_NOT_NEEDED);
+                                    selectedAvatarPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
+                                    selectedAvatarPopupWindow.getContentView().setFocusableInTouchMode(true);
+                                    selectedAvatarPopupWindow.setFocusable(true);
+                                    selectedAvatarPopupWindow.showAtLocation(senderAvatarHolder, Gravity.LEFT | Gravity.TOP, 0, selectedCellScreenLocation[1] + AndroidUtilities.dp(4));
+
+                                    AnimatorSet translationSet = new AnimatorSet();
+                                    int x = senderAvatarLocation[0] - selectedCellScreenLocation[0] + AndroidUtilities.dp(5);
+                                    int y = senderAvatarLocation[1] - selectedCellScreenLocation[1] + AndroidUtilities.dp(5);
+                                    ObjectAnimator animationTranslationX = ObjectAnimator.ofFloat(avatarCopy, View.TRANSLATION_X, x);
+                                    ObjectAnimator animationTranslationY = ObjectAnimator.ofFloat(avatarCopy, View.TRANSLATION_Y, y);
+                                    animationTranslationX.setDuration(400);
+                                    animationTranslationY.setDuration(400);
+                                    translationSet.setStartDelay(200);
+                                    translationSet.setInterpolator(new OvershootInterpolator());
+                                    translationSet.playTogether(animationTranslationX, animationTranslationY);
+                                    translationSet.start();
+
+                                    AndroidUtilities.runOnUIThread(() -> {
+                                        senderPopupWindow.dismiss();
+                                        AndroidUtilities.runOnUIThread(() -> selectedAvatarPopupWindow.dismiss(), 200);
+                                    }, 200);
+                                }
+                            });
+
+                            senderPopupLayout.addView(cell, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+                        }
+                        senderPopupLayout.setupRadialSelectors(getThemedColor(Theme.key_dialogButtonSelector));
+
+                        if (senderPopupWindow == null) {
+                            senderPopupWindow = new ActionBarPopupWindow(senderPopupLayout, LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT) {
+                                @Override
+                                public void dismiss() {
+                                    super.dismiss();
+                                    AnimatorSet disappearingSet = new AnimatorSet();
+                                    disappearingSet.setDuration(200);
+                                    disappearingSet.playTogether(
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 1f,0f),
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 1f,0f),
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 1f,0f)
+                                    );
+                                    disappearingSet.addListener(new AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            senderAvatarImageView.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                    disappearingSet.start();
+
+                                    senderAvatarDrawable.setInfo(defaultSender);
+                                    senderAvatarImageView.setForUserOrChat(defaultSender, senderAvatarDrawable);
+                                }
+                            };
+                            senderPopupWindow.setAnimationEnabled(false);
+                            senderPopupWindow.setAnimationStyle(R.style.PopupContextAnimationScale);
+                            senderPopupWindow.setOutsideTouchable(true);
+                            senderPopupWindow.setClippingEnabled(true);
+                            senderPopupWindow.setInputMethodMode(ActionBarPopupWindow.INPUT_METHOD_NOT_NEEDED);
+                            senderPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
+                            senderPopupWindow.getContentView().setFocusableInTouchMode(true);
+                        }
+                    }
+                }));
+            } else if (senderAvatarHolder != null && senderAvatarHolder.getVisibility() == View.VISIBLE) {
+                senderAvatarHolder.setVisibility(View.GONE);
+            }
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (botCommandsMenuButton != null && botCommandsMenuButton.getTag() != null) {
@@ -8406,6 +8708,11 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                 ((MarginLayoutParams) emojiButton[i].getLayoutParams()).leftMargin = AndroidUtilities.dp(10) + botCommandsMenuButton.getMeasuredWidth();
             }
             ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = AndroidUtilities.dp(57) + botCommandsMenuButton.getMeasuredWidth();
+        } else if (senderAvatarHolder.getVisibility() == View.VISIBLE) {
+            for (int i = 0; i < emojiButton.length; i++) {
+                ((MarginLayoutParams) emojiButton[i].getLayoutParams()).leftMargin = AndroidUtilities.dp(30 + 9);
+            }
+            ((MarginLayoutParams) messageEditText.getLayoutParams()).leftMargin = AndroidUtilities.dp(50 + 30 + 9);
         } else {
             for (int i = 0; i < emojiButton.length; i++) {
                 ((MarginLayoutParams) emojiButton[i].getLayoutParams()).leftMargin = AndroidUtilities.dp(3);

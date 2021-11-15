@@ -31,6 +31,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
     private int itemBackgroundColor;
     private boolean useOwnItemBackgroundColor;
     private int selectorColor;
+    private Typeface typeface;
 
     boolean top;
     boolean bottom;
@@ -171,6 +172,12 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
     public void setText(String text) {
         textView.setText(text);
+    }
+
+    public void setTypeface(Typeface typeface) {
+        if (this.typeface != typeface) {
+            textView.setTypeface(this.typeface = typeface);
+        }
     }
 
     public void setSubtextColor(int color) {

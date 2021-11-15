@@ -6044,7 +6044,8 @@ public class MessagesController extends BaseController implements NotificationCe
             return false;
         }
         if (dialogId < 0) {
-            if (ChatObject.shouldSendAnonymously(getChat(-dialogId))) {
+            TLRPC.ChatFull chatFull = getChatFull(-dialogId);
+            if (ChatObject.shouldSendAnonymously(getChat(-dialogId)) || (chatFull != null && chatFull.default_send_as != null && !(chatFull.default_send_as instanceof TLRPC.TL_peerUser))) {
                 return false;
             }
         } else {
@@ -9138,6 +9139,29 @@ public class MessagesController extends BaseController implements NotificationCe
                 });
             }
         }, ConnectionsManager.RequestFlagInvokeAfter);
+    }
+
+    public void updateChatDefaultSendAs(TLRPC.ChatFull info, long dialog_id, TLRPC.Peer sendAsPeer) {
+        TLRPC.Peer previousDefaultSender = info.default_send_as;
+        info.default_send_as = sendAsPeer;
+        getMessagesController().putChatFull(info);
+
+        TLRPC.TL_messages_saveDefaultSendAs req = new TLRPC.TL_messages_saveDefaultSendAs();
+        req.peer = getMessagesController().getInputPeer(dialog_id);
+        req.send_as = getMessagesController().getInputPeer(sendAsPeer);
+        getConnectionsManager().sendRequest(req, (response, error) -> {
+            boolean defaultSenderIsChanged = response instanceof TLRPC.TL_boolTrue;
+            if (error != null || !defaultSenderIsChanged) {
+                info.default_send_as = previousDefaultSender;
+                getMessagesController().putChatFull(info);
+                AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.chatInfoDidLoad, info, 0, false, false));
+            } else {
+                AndroidUtilities.runOnUIThread(() -> {
+                    getMessagesStorage().updateChatInfo(info, false);
+                    getNotificationCenter().postNotificationName(NotificationCenter.chatInfoDidLoad, info, 0, false, false);
+                });
+            }
+        });
     }
 
     public void updateChannelUserName(long chatId, String userName) {

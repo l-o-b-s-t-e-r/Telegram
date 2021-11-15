@@ -3443,9 +3443,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                         newMsg.flags |= 65536;
                     }
                 } else {
-                    newMsg.from_id = new TLRPC.TL_peerUser();
-                    newMsg.from_id.user_id = myId;
-                    newMsg.flags |= TLRPC.MESSAGE_FLAG_HAS_FROM_ID;
+                    TLRPC.ChatFull chatFull;
+                    TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                    if (ChatObject.isSendAsAvailable(chat) && (chatFull = getMessagesController().getChatFull(chat.id)).default_send_as != null) {
+                        newMsg.from_id = chatFull.default_send_as;
+                        newMsg.flags |= TLRPC.MESSAGE_FLAG_HAS_FROM_ID;
+                    } else {
+                        newMsg.from_id = new TLRPC.TL_peerUser();
+                        newMsg.from_id.user_id = myId;
+                        newMsg.flags |= TLRPC.MESSAGE_FLAG_HAS_FROM_ID;
+                    }
                 }
                 getUserConfig().saveConfig(false);
             }
@@ -3661,6 +3668,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     if (scheduleDate != 0) {
                         reqSend.schedule_date = scheduleDate;
                         reqSend.flags |= 1024;
+                    }
+                    if (sendToPeer instanceof TLRPC.TL_inputPeerChannel) {
+                        TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                        if (chat != null) {
+                            TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
+                            if (chatFull != null) {
+                                reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
+                                reqSend.flags |= 8192;
+                            }
+                        }
                     }
                     performSendMessageRequest(reqSend, newMsgObj, null, null, parentObject, params, scheduleDate != 0);
                     if (retryMessageObject == null) {
@@ -3977,6 +3994,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                                 request.schedule_date = scheduleDate;
                                 request.flags |= 1024;
                             }
+                            if (sendToPeer instanceof TLRPC.TL_inputPeerChannel) {
+                                TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                                if (chat != null) {
+                                    TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
+                                    if (chatFull != null) {
+                                        request.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
+                                        request.flags |= 8192;
+                                    }
+                                }
+                            }
                             delayedMessage.sendRequest = request;
                         }
                         delayedMessage.messageObjects.add(newMsgObj);
@@ -4016,7 +4043,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                             request.schedule_date = scheduleDate;
                             request.flags |= 1024;
                         }
-
+                        if (sendToPeer instanceof TLRPC.TL_inputPeerChannel) {
+                            TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                            if (chat != null) {
+                                TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
+                                if (chatFull != null) {
+                                    request.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
+                                    request.flags |= 8192;
+                                }
+                            }
+                        }
                         if (delayedMessage != null) {
                             delayedMessage.sendRequest = request;
                         }
@@ -4366,6 +4402,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     reqSend.schedule_date = scheduleDate;
                     reqSend.flags |= 1024;
                 }
+                if (sendToPeer instanceof TLRPC.TL_inputPeerChannel) {
+                    TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                    if (chat != null) {
+                        TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
+                        if (chatFull != null) {
+                            reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
+                            reqSend.flags |= 8192;
+                        }
+                    }
+                }
                 reqSend.random_id.add(newMsg.random_id);
                 if (retryMessageObject.getId() >= 0) {
                     reqSend.id.add(retryMessageObject.getId());
@@ -4390,6 +4436,16 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 if (scheduleDate != 0) {
                     reqSend.schedule_date = scheduleDate;
                     reqSend.flags |= 1024;
+                }
+                if (sendToPeer instanceof TLRPC.TL_inputPeerChannel) {
+                    TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
+                    if (chat != null) {
+                        TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
+                        if (chatFull != null) {
+                            reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
+                            reqSend.flags |= 8192;
+                        }
+                    }
                 }
                 reqSend.query_id = Utilities.parseLong(params.get("query_id"));
                 reqSend.id = params.get("id");

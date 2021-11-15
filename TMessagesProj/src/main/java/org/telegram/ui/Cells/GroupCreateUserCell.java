@@ -38,6 +38,52 @@ import org.telegram.ui.Components.LayoutHelper;
 
 public class GroupCreateUserCell extends FrameLayout {
 
+    public interface GroupCreateUserCellCompositor {
+        GroupCreateUserCellCompositor DEFAULT_CELL_COMPOSITOR = new GroupCreateUserCellCompositor() {
+            @Override
+            public int getAvatarSize() {
+                return 46;
+            }
+
+            @Override
+            public int circleRadius() {
+                return 18;
+            }
+
+            @Override
+            public int topMarginNameText() {
+                return 10;
+            }
+
+            @Override
+            public int topMarginStatusText() {
+                return 32;
+            }
+
+            @Override
+            public int leftMarginText() {
+                return LocaleController.isRTL ? 28 : 72;
+            }
+
+            @Override
+            public int rightMarginText() {
+                return LocaleController.isRTL ? 72 : 28;
+            }
+        };
+
+        int getAvatarSize();
+
+        int circleRadius();
+
+        int topMarginNameText();
+
+        int topMarginStatusText();
+
+        int leftMarginText();
+
+        int rightMarginText();
+    }
+
     private BackupImageView avatarImageView;
     private SimpleTextView nameTextView;
     private SimpleTextView statusTextView;
@@ -67,13 +113,24 @@ public class GroupCreateUserCell extends FrameLayout {
 
     private boolean showSelfAsSaved;
 
+    private GroupCreateUserCellCompositor cellCompositor;
+
     public GroupCreateUserCell(Context context, int checkBoxType, int pad, boolean selfAsSaved) {
-        this(context, checkBoxType, pad, selfAsSaved, false);
+        this(context, checkBoxType, pad, selfAsSaved, false, GroupCreateUserCellCompositor.DEFAULT_CELL_COMPOSITOR);
     }
 
     public GroupCreateUserCell(Context context, int checkBoxType, int pad, boolean selfAsSaved, boolean forCall) {
+        this(context, checkBoxType, pad, selfAsSaved, forCall, GroupCreateUserCellCompositor.DEFAULT_CELL_COMPOSITOR);
+    }
+
+    public GroupCreateUserCell(Context context, int checkBoxType, int pad, boolean selfAsSaved, GroupCreateUserCellCompositor cellCompositor) {
+        this(context, checkBoxType, pad, selfAsSaved, false, cellCompositor);
+    }
+
+    public GroupCreateUserCell(Context context, int checkBoxType, int pad, boolean selfAsSaved, boolean forCall, GroupCreateUserCellCompositor cellCompositor) {
         super(context);
         this.checkBoxType = checkBoxType;
+        this.cellCompositor = cellCompositor;
         forceDarkTheme = forCall;
 
         drawDivider = false;
@@ -90,12 +147,12 @@ public class GroupCreateUserCell extends FrameLayout {
         nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         nameTextView.setTextSize(16);
         nameTextView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP);
-        addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 20, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, (LocaleController.isRTL ? 28 : 72) + padding, 10, (LocaleController.isRTL ? 72 : 28) + padding, 0));
+        addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 20, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, cellCompositor.leftMarginText() + padding, cellCompositor.topMarginNameText(), cellCompositor.rightMarginText() + padding, 0));
 
         statusTextView = new SimpleTextView(context);
         statusTextView.setTextSize(14);
         statusTextView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP);
-        addView(statusTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 20, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, (LocaleController.isRTL ? 28 : 72) + padding, 32, (LocaleController.isRTL ? 72 : 28) + padding, 0));
+        addView(statusTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 20, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, cellCompositor.leftMarginText() + padding, cellCompositor.topMarginStatusText(), cellCompositor.rightMarginText() + padding, 0));
 
         if (checkBoxType == 1) {
             checkBox = new CheckBox2(context, 21);
@@ -188,7 +245,10 @@ public class GroupCreateUserCell extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(currentObject instanceof String ? 50 : 58), MeasureSpec.EXACTLY));
+        super.onMeasure(
+                MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(currentObject instanceof String ? 50 : 58), MeasureSpec.EXACTLY)
+        );
     }
 
     public void recycle() {
@@ -249,9 +309,9 @@ public class GroupCreateUserCell extends FrameLayout {
             if (currentStatus != null && TextUtils.isEmpty(currentStatus)) {
                 ((LayoutParams) nameTextView.getLayoutParams()).topMargin = AndroidUtilities.dp(19);
             } else {
-                ((LayoutParams) nameTextView.getLayoutParams()).topMargin = AndroidUtilities.dp(10);
+                ((LayoutParams) nameTextView.getLayoutParams()).topMargin = AndroidUtilities.dp(cellCompositor.topMarginNameText());
             }
-            avatarImageView.getLayoutParams().width = avatarImageView.getLayoutParams().height = AndroidUtilities.dp(46);
+            avatarImageView.getLayoutParams().width = avatarImageView.getLayoutParams().height = AndroidUtilities.dp(cellCompositor.getAvatarSize());
             if (checkBox != null) {
                 ((LayoutParams) checkBox.getLayoutParams()).topMargin = AndroidUtilities.dp(33);
                 if (LocaleController.isRTL) {
@@ -407,7 +467,7 @@ public class GroupCreateUserCell extends FrameLayout {
             paint.setColor(Theme.getColor(Theme.key_checkboxSquareBackground));
             float cx = avatarImageView.getLeft() + avatarImageView.getMeasuredWidth() / 2;
             float cy = avatarImageView.getTop() + avatarImageView.getMeasuredHeight() / 2;
-            canvas.drawCircle(cx, cy, AndroidUtilities.dp(18) + AndroidUtilities.dp(4) * checkProgress, paint);
+            canvas.drawCircle(cx, cy, AndroidUtilities.dp(cellCompositor.circleRadius()) + AndroidUtilities.dp(4) * checkProgress, paint);
         }
         if (drawDivider) {
             int start = AndroidUtilities.dp(LocaleController.isRTL ? 0 : 72 + padding);
@@ -424,5 +484,9 @@ public class GroupCreateUserCell extends FrameLayout {
     @Override
     public boolean hasOverlappingRendering() {
         return false;
+    }
+
+    public BackupImageView getAvatarImageView() {
+        return avatarImageView;
     }
 }

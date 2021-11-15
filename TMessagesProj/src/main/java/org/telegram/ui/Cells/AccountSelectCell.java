@@ -10,6 +10,8 @@
 package org.telegram.ui.Cells;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.text.TextUtils;
@@ -38,10 +40,17 @@ public class AccountSelectCell extends FrameLayout {
     private BackupImageView imageView;
     private ImageView checkImageView;
     private AvatarDrawable avatarDrawable;
+    private Paint avatarBorderPaint;
 
     private int accountNumber;
+    private boolean avatarSelected;
+    private int textColor;
 
     public AccountSelectCell(Context context, boolean hasInfo) {
+        this(context, hasInfo ? Theme.getColor(Theme.key_voipgroup_nameText) : Theme.getColor(Theme.key_actionBarDefaultSubmenuItem), hasInfo);
+    }
+
+    public AccountSelectCell(Context context, int textColor, boolean hasInfo) {
         super(context);
 
         avatarDrawable = new AvatarDrawable();
@@ -60,9 +69,13 @@ public class AccountSelectCell extends FrameLayout {
         textView.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         textView.setEllipsize(TextUtils.TruncateAt.END);
 
+        avatarBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        avatarBorderPaint.setStyle(Paint.Style.STROKE);
+        avatarBorderPaint.setStrokeWidth(AndroidUtilities.dp(2));
+
         if (hasInfo) {
             addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 61, 7, 8, 0));
-            textView.setTextColor(Theme.getColor(Theme.key_voipgroup_nameText));
+            textView.setTextColor(textColor);
             textView.setText(LocaleController.getString("VoipGroupDisplayAs", R.string.VoipGroupDisplayAs));
 
             infoTextView = new TextView(context);
@@ -77,7 +90,7 @@ public class AccountSelectCell extends FrameLayout {
             addView(infoTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 61, 27, 8, 0));
         } else {
             addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP, 61, 0, 56, 0));
-            textView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuItem));
+            textView.setTextColor(textColor);
 
             checkImageView = new ImageView(context);
             checkImageView.setImageResource(R.drawable.account_check);
@@ -104,6 +117,23 @@ public class AccountSelectCell extends FrameLayout {
         }
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (avatarSelected) {
+            avatarBorderPaint.setColor(Theme.getColor(Theme.key_checkboxSquareBackground));
+            float cx = imageView.getLeft() + imageView.getMeasuredWidth() / 2;
+            float cy = imageView.getTop() + imageView.getMeasuredHeight() / 2;
+            canvas.drawCircle(cx, cy, AndroidUtilities.dp(18) + AndroidUtilities.dp(4), avatarBorderPaint);
+        }
+    }
+
+    public void setTextColor(int textColor) {
+        if (this.textColor != textColor) {
+            textView.setTextColor(this.textColor = textColor);
+        }
+    }
+
     public void setObject(TLObject object) {
         if (object instanceof TLRPC.User) {
             TLRPC.User user = (TLRPC.User) object;
@@ -126,6 +156,14 @@ public class AccountSelectCell extends FrameLayout {
         imageView.getImageReceiver().setCurrentAccount(account);
         imageView.setForUserOrChat(user, avatarDrawable);
         checkImageView.setVisibility(check && account == UserConfig.selectedAccount ? VISIBLE : INVISIBLE);
+    }
+
+    public void setInfo(TLObject object, String title, String subtitle, boolean isSelected) {
+        avatarSelected = isSelected;
+        avatarDrawable.setInfo(object);
+        imageView.setForUserOrChat(object, avatarDrawable);
+        textView.setText(title);
+        infoTextView.setText(subtitle);
     }
 
     public int getAccountNumber() {

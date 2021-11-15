@@ -6600,7 +6600,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         bottomMessagesActionContainer.setOnTouchListener((v, event) -> true);
 
         chatActivityEnterView = new ChatActivityEnterView(getParentActivity(), contentView, this, true, themeDelegate) {
-
             int lastContentViewHeight;
             int messageEditTextPredrawHeigth;
             int messageEditTextPredrawScrollY;
@@ -14597,6 +14596,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 long prevLinkedChatId = chatInfo != null ? chatInfo.linked_chat_id : 0;
                 chatInfo = chatFull;
                 groupCall = getMessagesController().getGroupCall(currentChat.id, true);
+                chatActivityEnterView.setupDefaultSender();
                 if (ChatObject.isChannel(currentChat) && currentChat.megagroup && fragmentContextView != null) {
                     fragmentContextView.checkCall(openAnimationStartTime == 0 || SystemClock.elapsedRealtime() < openAnimationStartTime + 150);
                 }
