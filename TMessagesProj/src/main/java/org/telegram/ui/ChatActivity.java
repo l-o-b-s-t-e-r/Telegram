@@ -14596,7 +14596,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 long prevLinkedChatId = chatInfo != null ? chatInfo.linked_chat_id : 0;
                 chatInfo = chatFull;
                 groupCall = getMessagesController().getGroupCall(currentChat.id, true);
-                chatActivityEnterView.setupDefaultSender();
                 if (ChatObject.isChannel(currentChat) && currentChat.megagroup && fragmentContextView != null) {
                     fragmentContextView.checkCall(openAnimationStartTime == 0 || SystemClock.elapsedRealtime() < openAnimationStartTime + 150);
                 }
@@ -14620,6 +14619,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
                 if (chatActivityEnterView != null) {
                     chatActivityEnterView.setChatInfo(chatInfo);
+                    chatActivityEnterView.setupDefaultSender();
                 }
                 if (mentionsAdapter != null) {
                     mentionsAdapter.setChatInfo(chatInfo);
