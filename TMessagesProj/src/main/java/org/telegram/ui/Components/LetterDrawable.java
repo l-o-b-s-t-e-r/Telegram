@@ -19,8 +19,8 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.FileLog;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.FileLog;
 import org.telegram.ui.ActionBar.Theme;
 
 public class LetterDrawable extends Drawable {

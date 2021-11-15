@@ -16,9 +16,9 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.Emoji;
-import org.telegram.messenger.R;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.Emoji;
+import org.telegram.messengerbylobster.R;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 

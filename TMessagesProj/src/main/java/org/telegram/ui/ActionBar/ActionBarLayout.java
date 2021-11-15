@@ -27,8 +27,6 @@ import android.os.Build;
 
 import androidx.annotation.Keep;
 
-import android.os.SystemClock;
-
 import androidx.core.graphics.ColorUtils;
 import androidx.core.math.MathUtils;
 
@@ -45,14 +43,11 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import com.google.android.exoplayer2.util.Log;
-
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.R;
-import org.telegram.messenger.SharedConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.SharedConfig;
 import org.telegram.ui.Components.Bulletin;
 import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.GroupCallPip;

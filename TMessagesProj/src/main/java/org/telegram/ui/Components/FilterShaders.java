@@ -7,11 +7,11 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.MediaController;
-import org.telegram.messenger.Utilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.BuildVars;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.MediaController;
+import org.telegram.messengerbylobster.Utilities;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

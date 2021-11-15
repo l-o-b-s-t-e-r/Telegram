@@ -2,7 +2,6 @@ package org.telegram.ui.Components;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -16,10 +15,9 @@ import android.widget.TextView;
 
 import androidx.core.graphics.ColorUtils;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.R;
-import org.telegram.ui.ActionBar.SimpleTextView;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.R;
 import org.telegram.ui.ActionBar.Theme;
 
 import java.util.Random;

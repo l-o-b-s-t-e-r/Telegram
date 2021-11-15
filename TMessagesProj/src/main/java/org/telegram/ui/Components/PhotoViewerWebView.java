@@ -19,14 +19,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.BringAppForegroundService;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.Utilities;
-import org.telegram.messenger.browser.Browser;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.ApplicationLoader;
+import org.telegram.messengerbylobster.BringAppForegroundService;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.UserConfig;
+import org.telegram.messengerbylobster.Utilities;
+import org.telegram.messengerbylobster.browser.Browser;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.PhotoViewer;
 

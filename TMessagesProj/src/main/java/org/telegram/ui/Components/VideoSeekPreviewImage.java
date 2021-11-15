@@ -14,11 +14,11 @@ import android.text.TextPaint;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.Bitmaps;
-import org.telegram.messenger.FileLoader;
-import org.telegram.messenger.R;
-import org.telegram.messenger.Utilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.Bitmaps;
+import org.telegram.messengerbylobster.FileLoader;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.Utilities;
 import org.telegram.tgnet.TLRPC;
 
 import java.io.File;

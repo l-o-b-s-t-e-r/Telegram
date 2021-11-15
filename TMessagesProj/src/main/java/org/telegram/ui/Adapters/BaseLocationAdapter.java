@@ -11,12 +11,12 @@ package org.telegram.ui.Adapters;
 import android.location.Location;
 import android.os.Build;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.DialogObject;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.MessagesStorage;
-import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.Utilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.DialogObject;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.MessagesStorage;
+import org.telegram.messengerbylobster.UserConfig;
+import org.telegram.messengerbylobster.Utilities;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;

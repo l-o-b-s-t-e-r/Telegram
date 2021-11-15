@@ -38,10 +38,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.R;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.R;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.LineProgressView;
 import org.telegram.ui.Components.RLottieImageView;

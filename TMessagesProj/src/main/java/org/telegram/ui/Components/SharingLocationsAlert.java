@@ -23,12 +23,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.LocationController;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.R;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.LocationController;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.UserConfig;
 import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.SharingLiveLocationCell;

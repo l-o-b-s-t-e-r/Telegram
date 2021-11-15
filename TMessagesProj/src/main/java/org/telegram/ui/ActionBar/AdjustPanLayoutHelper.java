@@ -16,11 +16,10 @@ import android.widget.FrameLayout;
 
 import androidx.recyclerview.widget.ChatListItemAnimator;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserConfig;
-import org.telegram.ui.Components.CubicBezierInterpolator;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.SharedConfig;
+import org.telegram.messengerbylobster.UserConfig;
 
 import java.util.ArrayList;
 

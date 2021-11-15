@@ -49,12 +49,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.R;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.UserConfig;
 import org.telegram.ui.Components.AnimationProperties;
 import org.telegram.ui.Components.Bulletin;
 import org.telegram.ui.Components.CubicBezierInterpolator;

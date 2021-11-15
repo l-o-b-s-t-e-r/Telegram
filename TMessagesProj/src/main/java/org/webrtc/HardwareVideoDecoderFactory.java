@@ -12,8 +12,8 @@ package org.webrtc;
 
 import android.media.MediaCodecInfo;
 
-import org.telegram.messenger.voip.Instance;
-import org.telegram.messenger.voip.VoIPService;
+import org.telegram.messengerbylobster.voip.Instance;
+import org.telegram.messengerbylobster.voip.VoIPService;
 
 import androidx.annotation.Nullable;
 

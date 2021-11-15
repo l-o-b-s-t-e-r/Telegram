@@ -8,8 +8,8 @@
 
 package org.telegram.SQLite;
 
-import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.FileLog;
+import org.telegram.messengerbylobster.BuildVars;
+import org.telegram.messengerbylobster.FileLog;
 import org.telegram.tgnet.NativeByteBuffer;
 
 public class SQLiteCursor {

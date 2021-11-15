@@ -18,24 +18,23 @@ import android.text.TextUtils;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.telegram.PhoneFormat.PhoneFormat;
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ChatObject;
-import org.telegram.messenger.DialogObject;
-import org.telegram.messenger.ImageLocation;
-import org.telegram.messenger.ImageReceiver;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserObject;
-import org.telegram.messenger.R;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.ChatObject;
+import org.telegram.messengerbylobster.DialogObject;
+import org.telegram.messengerbylobster.ImageLocation;
+import org.telegram.messengerbylobster.ImageReceiver;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.SharedConfig;
+import org.telegram.messengerbylobster.UserObject;
+import org.telegram.messengerbylobster.R;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messengerbylobster.UserConfig;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.CheckBox2;
-import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.NotificationsSettingsActivity;
 
 public class ProfileSearchCell extends BaseCell {

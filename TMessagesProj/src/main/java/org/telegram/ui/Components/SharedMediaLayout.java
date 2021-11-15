@@ -1,7 +1,6 @@
 package org.telegram.ui.Components;
 
-import static org.telegram.messenger.MediaDataController.MEDIA_PHOTOVIDEO;
-import static org.telegram.messenger.MediaDataController.getMediaType;
+import static org.telegram.messengerbylobster.MediaDataController.MEDIA_PHOTOVIDEO;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -56,26 +55,24 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.exoplayer2.util.Log;
-
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.ChatObject;
-import org.telegram.messenger.DialogObject;
-import org.telegram.messenger.FileLoader;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.ImageReceiver;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.MediaController;
-import org.telegram.messenger.MediaDataController;
-import org.telegram.messenger.MessageObject;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.R;
-import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserObject;
-import org.telegram.messenger.Utilities;
-import org.telegram.messenger.browser.Browser;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.ApplicationLoader;
+import org.telegram.messengerbylobster.ChatObject;
+import org.telegram.messengerbylobster.DialogObject;
+import org.telegram.messengerbylobster.FileLoader;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.ImageReceiver;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.MediaController;
+import org.telegram.messengerbylobster.MediaDataController;
+import org.telegram.messengerbylobster.MessageObject;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.SharedConfig;
+import org.telegram.messengerbylobster.UserObject;
+import org.telegram.messengerbylobster.Utilities;
+import org.telegram.messengerbylobster.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;

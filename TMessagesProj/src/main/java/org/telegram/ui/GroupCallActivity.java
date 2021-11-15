@@ -42,9 +42,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Property;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
-import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
@@ -77,25 +74,25 @@ import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import org.telegram.messenger.AccountInstance;
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ChatObject;
-import org.telegram.messenger.DialogObject;
-import org.telegram.messenger.FileLoader;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.ImageLoader;
-import org.telegram.messenger.ImageLocation;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.MessageObject;
-import org.telegram.messenger.MessagesController;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.R;
-import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserObject;
-import org.telegram.messenger.Utilities;
-import org.telegram.messenger.support.LongSparseIntArray;
-import org.telegram.messenger.voip.Instance;
-import org.telegram.messenger.voip.VoIPService;
+import org.telegram.messengerbylobster.AccountInstance;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.ChatObject;
+import org.telegram.messengerbylobster.DialogObject;
+import org.telegram.messengerbylobster.FileLoader;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.ImageLoader;
+import org.telegram.messengerbylobster.ImageLocation;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.MessageObject;
+import org.telegram.messengerbylobster.MessagesController;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.SharedConfig;
+import org.telegram.messengerbylobster.UserObject;
+import org.telegram.messengerbylobster.Utilities;
+import org.telegram.messengerbylobster.support.LongSparseIntArray;
+import org.telegram.messengerbylobster.voip.Instance;
+import org.telegram.messengerbylobster.voip.VoIPService;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
@@ -159,8 +156,6 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import static android.content.Context.AUDIO_SERVICE;
-
-import com.google.android.exoplayer2.util.Log;
 
 public class GroupCallActivity extends BottomSheet implements NotificationCenter.NotificationCenterDelegate, VoIPService.StateListener {
 

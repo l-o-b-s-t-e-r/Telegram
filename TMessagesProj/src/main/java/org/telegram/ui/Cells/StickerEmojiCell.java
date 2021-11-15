@@ -18,23 +18,23 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.DocumentObject;
-import org.telegram.messenger.ImageReceiver;
-import org.telegram.messenger.MediaDataController;
-import org.telegram.messenger.Emoji;
-import org.telegram.messenger.FileLoader;
-import org.telegram.messenger.ImageLocation;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.MessageObject;
-import org.telegram.messenger.R;
-import org.telegram.messenger.SendMessagesHelper;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.DocumentObject;
+import org.telegram.messengerbylobster.ImageReceiver;
+import org.telegram.messengerbylobster.MediaDataController;
+import org.telegram.messengerbylobster.Emoji;
+import org.telegram.messengerbylobster.FileLoader;
+import org.telegram.messengerbylobster.ImageLocation;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.MessageObject;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.SendMessagesHelper;
+import org.telegram.messengerbylobster.UserConfig;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
-import org.telegram.messenger.SvgHelper;
+import org.telegram.messengerbylobster.SvgHelper;
 
 public class StickerEmojiCell extends FrameLayout {
 

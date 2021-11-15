@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 import androidx.core.graphics.ColorUtils;
 
-import org.telegram.messenger.SegmentTree;
+import org.telegram.messengerbylobster.SegmentTree;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -16,11 +16,10 @@ import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
 import static org.webrtc.MediaCodecUtils.HISI_PREFIX;
 
 import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.os.Build;
 
-import org.telegram.messenger.voip.Instance;
-import org.telegram.messenger.voip.VoIPService;
+import org.telegram.messengerbylobster.voip.Instance;
+import org.telegram.messengerbylobster.voip.VoIPService;
 
 import androidx.annotation.Nullable;
 import java.util.ArrayList;

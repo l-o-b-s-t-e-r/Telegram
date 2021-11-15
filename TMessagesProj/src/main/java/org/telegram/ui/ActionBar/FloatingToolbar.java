@@ -57,11 +57,11 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.R;
-import org.telegram.messenger.UserConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.LocaleController;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.R;
+import org.telegram.messengerbylobster.UserConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;

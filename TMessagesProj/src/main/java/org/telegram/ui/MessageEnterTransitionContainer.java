@@ -5,7 +5,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.View;
 
-import org.telegram.messenger.NotificationCenter;
+import org.telegram.messengerbylobster.NotificationCenter;
 
 import java.util.ArrayList;
 

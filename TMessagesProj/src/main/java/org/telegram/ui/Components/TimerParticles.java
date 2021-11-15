@@ -5,8 +5,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.SystemClock;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.Utilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.Utilities;
 
 import java.util.ArrayList;
 

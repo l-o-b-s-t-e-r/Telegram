@@ -2,9 +2,9 @@ package org.telegram.ui.Components.Paint;
 
 import android.graphics.RectF;
 
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.DispatchQueue;
-import org.telegram.messenger.FileLog;
+import org.telegram.messengerbylobster.ApplicationLoader;
+import org.telegram.messengerbylobster.DispatchQueue;
+import org.telegram.messengerbylobster.FileLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

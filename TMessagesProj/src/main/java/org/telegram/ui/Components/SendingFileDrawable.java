@@ -12,7 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 
-import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 
 public class SendingFileDrawable extends StatusDrawable {

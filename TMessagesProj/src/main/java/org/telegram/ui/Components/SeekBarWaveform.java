@@ -14,8 +14,8 @@ import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.View;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.MessageObject;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.MessageObject;
 
 public class SeekBarWaveform {
 

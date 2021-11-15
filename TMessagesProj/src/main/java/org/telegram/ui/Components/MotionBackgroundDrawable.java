@@ -24,10 +24,10 @@ import android.view.View;
 
 import androidx.core.graphics.ColorUtils;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.Utilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.FileLog;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.Utilities;
 
 import java.lang.ref.WeakReference;
 

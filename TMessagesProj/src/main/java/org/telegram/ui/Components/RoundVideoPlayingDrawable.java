@@ -15,7 +15,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 
 public class RoundVideoPlayingDrawable extends Drawable {

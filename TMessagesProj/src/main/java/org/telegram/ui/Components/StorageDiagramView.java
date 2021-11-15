@@ -15,7 +15,7 @@ import android.view.View;
 
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messengerbylobster.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 
 public class StorageDiagramView extends View {

@@ -6,8 +6,8 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.view.View;
 
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.SharedConfig;
+import org.telegram.messengerbylobster.AndroidUtilities;
+import org.telegram.messengerbylobster.SharedConfig;
 import org.telegram.ui.ActionBar.Theme;
 
 public class PacmanAnimation {

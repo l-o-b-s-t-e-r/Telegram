@@ -60,10 +60,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.video.SurfaceNotValidException;
 
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.FourierTransform;
-import org.telegram.messenger.NotificationCenter;
-import org.telegram.messenger.secretmedia.ExtendedDefaultDataSourceFactory;
+import org.telegram.messengerbylobster.ApplicationLoader;
+import org.telegram.messengerbylobster.FourierTransform;
+import org.telegram.messengerbylobster.NotificationCenter;
+import org.telegram.messengerbylobster.secretmedia.ExtendedDefaultDataSourceFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
