@@ -3150,9 +3150,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
         AnimatorSet appearingSet = new AnimatorSet();
         appearingSet.setDuration(200);
         appearingSet.playTogether(
-                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 0f,1f),
-                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 0f,1f),
-                ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 0f,1f)
+                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 0f, 1f),
+                ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 0f, 1f),
+                ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 0f, 1f)
         );
         appearingSet.start();
 
@@ -8509,16 +8509,29 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
     int botCommandLastTop;
 
     public void setupDefaultSender() {
+        if (parentFragment == null) {
+            return;
+        }
+
         TLRPC.Chat channel = parentFragment.getCurrentChat();
         TLRPC.ChatFull chatInfo = parentFragment.getCurrentChatInfo();
-
         if (ChatObject.isSendAsAvailable(channel) && chatInfo != null) {
             if (channel.has_geo || (channel.megagroup && ((channel.username != null && !channel.username.isEmpty()) || channel.has_link))) {
                 TLRPC.Peer peer = chatInfo.default_send_as;
+                long defaultSendAsId;
                 if (peer instanceof TLRPC.TL_peerUser) {
                     defaultSender = accountInstance.getMessagesController().getUser(peer.user_id);
+                    defaultSendAsId = MessageObject.getPeerId(peer);
                 } else if (peer instanceof TLRPC.TL_peerChannel) {
                     defaultSender = accountInstance.getMessagesController().getChat(peer.channel_id);
+                    defaultSendAsId = MessageObject.getPeerId(peer);
+                } else {
+                    TLRPC.User currentUser = accountInstance.getUserConfig().getCurrentUser();
+                    defaultSender = currentUser;
+                    defaultSendAsId = currentUser.id;
+                }
+                if (defaultSender == null) {
+                    return;
                 }
 
                 senderAvatarDrawable.setInfo(defaultSender);
@@ -8591,7 +8604,7 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
 
                             GroupCreateUserCell cell = new GroupCreateUserCell(getContext(), 2, 0, false, sendAsCellCompositor);
                             cell.setObject(userOrChat, name, status, false);
-                            cell.setChecked(did == MessageObject.getPeerId(peer), false);
+                            cell.setChecked(did == defaultSendAsId, false);
                             cell.setOnClickListener(view -> {
                                 for (int j = 0, M = senderPopupLayout.getItemsCount(); j < M; j++) {
                                     View senderView = senderPopupLayout.getItemAt(j);
@@ -8668,9 +8681,9 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
                                     AnimatorSet disappearingSet = new AnimatorSet();
                                     disappearingSet.setDuration(200);
                                     disappearingSet.playTogether(
-                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 1f,0f),
-                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 1f,0f),
-                                            ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 1f,0f)
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_Y, 1f, 0f),
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.SCALE_X, 1f, 0f),
+                                            ObjectAnimator.ofFloat(closeSenderPopup, View.ALPHA, 1f, 0f)
                                     );
                                     disappearingSet.addListener(new AnimatorListenerAdapter() {
                                         @Override
