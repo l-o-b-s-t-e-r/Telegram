@@ -3673,7 +3673,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                         TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
                         if (chat != null) {
                             TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
-                            if (chatFull != null) {
+                            if (chatFull != null && chatFull.default_send_as != null) {
                                 reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
                                 reqSend.flags |= 8192;
                             }
@@ -3998,7 +3998,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                                 TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
                                 if (chat != null) {
                                     TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
-                                    if (chatFull != null) {
+                                    if (chatFull != null && chatFull.default_send_as != null) {
                                         request.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
                                         request.flags |= 8192;
                                     }
@@ -4047,7 +4047,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                             TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
                             if (chat != null) {
                                 TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
-                                if (chatFull != null) {
+                                if (chatFull != null && chatFull.default_send_as != null) {
                                     request.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
                                     request.flags |= 8192;
                                 }
@@ -4406,7 +4406,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
                     if (chat != null) {
                         TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
-                        if (chatFull != null) {
+                        if (chatFull != null && chatFull.default_send_as != null) {
                             reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
                             reqSend.flags |= 8192;
                         }
@@ -4441,7 +4441,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     TLRPC.Chat chat = getMessagesController().getChat(sendToPeer.channel_id);
                     if (chat != null) {
                         TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chat.id);
-                        if (chatFull != null) {
+                        if (chatFull != null && chatFull.default_send_as != null) {
                             reqSend.send_as = getMessagesController().getInputPeer(chatFull.default_send_as);
                             reqSend.flags |= 8192;
                         }
