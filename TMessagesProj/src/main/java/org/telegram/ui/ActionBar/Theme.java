@@ -60,6 +60,11 @@ import android.util.SparseArray;
 import android.util.StateSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.core.graphics.ColorUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
@@ -67,7 +72,6 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.Bitmaps;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.ChatThemeController;
-import org.telegram.messenger.Emoji;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ImageLocation;
@@ -78,6 +82,7 @@ import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
+import org.telegram.messenger.SvgHelper;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.time.SunDate;
@@ -101,7 +106,6 @@ import org.telegram.ui.Components.RoundStatusDrawable;
 import org.telegram.ui.Components.ScamDrawable;
 import org.telegram.ui.Components.SendingFileDrawable;
 import org.telegram.ui.Components.StatusDrawable;
-import org.telegram.messenger.SvgHelper;
 import org.telegram.ui.Components.ThemeEditorView;
 import org.telegram.ui.Components.TypingDotsDrawable;
 import org.telegram.ui.RoundVideoProgressShadow;
@@ -120,15 +124,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.core.graphics.ColorUtils;
 
 public class Theme {
 
@@ -3061,6 +3059,7 @@ public class Theme {
     public static final String key_actionBarDefaultSubmenuItem = "actionBarDefaultSubmenuItem";
     public static final String key_actionBarDefaultSubmenuItemIcon = "actionBarDefaultSubmenuItemIcon";
     public static final String key_actionBarDefaultSubmenuBackground = "actionBarDefaultSubmenuBackground";
+    public static final String key_actionBarDefaultPopupBackground = "actionBarDefaultPopupBackground";
     public static final String key_actionBarTabActiveText = "actionBarTabActiveText";
     public static final String key_actionBarTabUnactiveText = "actionBarTabUnactiveText";
     public static final String key_actionBarTabLine = "actionBarTabLine";
@@ -3417,6 +3416,14 @@ public class Theme {
     public static final String key_chat_botKeyboardButtonBackground = "chat_botKeyboardButtonBackground";
     public static final String key_chat_botKeyboardButtonBackgroundPressed = "chat_botKeyboardButtonBackgroundPressed";
     public static final String key_chat_emojiPanelNewTrending = "chat_emojiPanelNewTrending";
+    public static final String key_chat_reactionText = "key_chat_reactionText";
+    public static final String key_chat_reactionBlueBackground = "key_chat_reactionBlueBackground";
+    public static final String key_chat_reactionBlackTransparentBackground = "key_chat_reactionBlackTransparentBackground";
+    public static final String key_chat_reactionWhiteTransparentBackground = "key_chat_reactionWhiteTransparentBackground";
+    public static final String key_chat_reactionGreenBackground = "key_chat_reactionGreenBackground";
+    public static final String key_chat_reactionWhiteText = "key_chat_reactionWhiteText";
+    public static final String key_chat_reactionBlueText = "key_chat_reactionBlueText";
+    public static final String key_chat_reactionGreenText = "key_chat_reactionGreenText";
     public static final String key_chat_messagePanelVoicePressed = "chat_messagePanelVoicePressed";
     public static final String key_chat_messagePanelVoiceBackground = "chat_messagePanelVoiceBackground";
     public static final String key_chat_messagePanelVoiceDelete = "chat_messagePanelVoiceDelete";
@@ -3913,6 +3920,7 @@ public class Theme {
         defaultColors.put(key_actionBarDefaultSubmenuItem, 0xff222222);
         defaultColors.put(key_actionBarDefaultSubmenuItemIcon, 0xff676b70);
         defaultColors.put(key_actionBarDefaultSubmenuBackground, 0xffffffff);
+        defaultColors.put(key_actionBarDefaultPopupBackground, 0x00000000);
         defaultColors.put(key_actionBarActionModeDefaultSelector, 0xffe2e2e2);
         defaultColors.put(key_actionBarTabActiveText, 0xffffffff);
         defaultColors.put(key_actionBarTabUnactiveText, 0xffd5e8f7);
@@ -4239,6 +4247,16 @@ public class Theme {
         defaultColors.put(key_chat_messagePanelVoiceLockShadow, 0xff000000);
         defaultColors.put(key_chat_recordTime, 0xff8e959b);
         defaultColors.put(key_chat_emojiPanelNewTrending, 0xff4da6ea);
+        defaultColors.put(key_chat_reactionText, 0xff000000);
+
+        defaultColors.put(key_chat_reactionBlueBackground, 0xffECF3F9);
+        defaultColors.put(key_chat_reactionBlackTransparentBackground, 0x33000000);
+        defaultColors.put(key_chat_reactionWhiteTransparentBackground, 0x33ffffff);
+        defaultColors.put(key_chat_reactionGreenBackground, 0xffE0F2CF);
+        defaultColors.put(key_chat_reactionWhiteText, 0xffffffff);
+        defaultColors.put(key_chat_reactionBlueText, 0xff4F8BCC);
+        defaultColors.put(key_chat_reactionGreenText, 0xff6AAA5B);
+
         defaultColors.put(key_chat_gifSaveHintText, 0xffffffff);
         defaultColors.put(key_chat_gifSaveHintBackground, 0xcc111111);
         defaultColors.put(key_chat_goDownButton, 0xffffffff);
@@ -5908,6 +5926,30 @@ public class Theme {
                     break;
                 }
             }
+        }
+    }
+
+    public static Drawable createRadSelectorDrawable(int solidColor, int strokeColor, int rippleColor, int strokeWidth, int topRad, int bottomRad) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            Paint solidPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            solidPaint.setColor(solidColor);
+
+            Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            strokePaint.setStyle(Paint.Style.STROKE);
+            strokePaint.setColor(strokeColor);
+            strokePaint.setStrokeWidth(strokeWidth);
+            Drawable maskDrawable = new RippleRadMaskDrawable(topRad, bottomRad);
+            ColorStateList colorStateList = new ColorStateList(
+                    new int[][]{StateSet.WILD_CARD},
+                    new int[]{rippleColor}
+            );
+            return new RippleDrawable(colorStateList, maskDrawable, maskDrawable);
+        } else {
+            StateListDrawable stateListDrawable = new StateListDrawable();
+            stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(rippleColor));
+            stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(rippleColor));
+            stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(solidColor));
+            return stateListDrawable;
         }
     }
 

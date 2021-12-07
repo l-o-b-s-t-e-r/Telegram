@@ -21,8 +21,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-
-import androidx.annotation.Keep;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +31,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ScrollView;
+
+import androidx.annotation.Keep;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
@@ -179,10 +179,11 @@ public class ActionBarPopupWindow extends PopupWindow {
                 }
             };
             linearLayout.setOrientation(LinearLayout.VERTICAL);
+
             if (scrollView != null) {
                 scrollView.addView(linearLayout, new ScrollView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             } else {
-                addView(linearLayout, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+                addView(linearLayout, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT /*, Gravity.TOP | Gravity.START, 0, AndroidUtilities.dp(30), 0, 0*/));
             }
         }
 
@@ -206,6 +207,10 @@ public class ActionBarPopupWindow extends PopupWindow {
             if (backgroundColor != color) {
                 backgroundDrawable.setColorFilter(new PorterDuffColorFilter(backgroundColor = color, PorterDuff.Mode.MULTIPLY));
             }
+        }
+
+        public void setLinearLayoutBackground(int color) {
+            linearLayout.setBackgroundColor(color);
         }
 
         @Keep

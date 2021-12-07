@@ -14,8 +14,6 @@ import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.R;
-import org.telegram.ui.Components.CheckBox;
 import org.telegram.ui.Components.CheckBox2;
 import org.telegram.ui.Components.LayoutHelper;
 
@@ -29,6 +27,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
     private int textColor;
     private int iconColor;
+    private int itemBackgroundColor;
     private int selectorColor;
 
     boolean top;
@@ -58,6 +57,7 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
         textColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItem);
         iconColor = getThemedColor(Theme.key_actionBarDefaultSubmenuItemIcon);
+        itemBackgroundColor = getThemedColor(Theme.key_actionBarDefaultSubmenuBackground);
         selectorColor = getThemedColor(Theme.key_dialogButtonSelector);
 
         updateBackground();
@@ -206,6 +206,13 @@ public class ActionBarMenuSubItem extends FrameLayout {
 
     public ImageView getImageView() {
         return imageView;
+    }
+
+    public void setItemBackgroundColor(int itemBackgroundColor) {
+        if (this.itemBackgroundColor != itemBackgroundColor) {
+            this.itemBackgroundColor = itemBackgroundColor;
+            updateBackground();
+        }
     }
 
     public void setSelectorColor(int selectorColor) {

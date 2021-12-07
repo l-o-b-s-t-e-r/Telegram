@@ -430,6 +430,12 @@
     <string name="ChannelOtherSubscriberJoined">joined %1$s</string>
     <string name="ChannelRestrictedUsers">Restricted users</string>
     <string name="ChannelAdministrators">Administrators</string>
+    <string name="Reactions">Reactions</string>
+    <string name="AvailableReactions">Available reactions</string>
+    <string name="EnableReactions">Enable Reactions</string>
+    <string name="EnableReactionsChannelHelp">Allow subscribers to react to channel posts.</string>
+    <string name="EnableReactionsGroupHelp">Allow participants to react to group posts.</string>
+    <string name="ReactionsOff">Off</string>
     <string name="ChannelDelete">Delete Channel</string>
     <string name="ChannelDeleteMenu">Delete channel</string>
     <string name="ChannelDeleteAlert">Wait! Deleting this channel will remove all members and all messages will be lost. Delete the channel anyway?</string>

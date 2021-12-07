@@ -32,8 +32,12 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.style.CharacterStyle;
-import android.util.Log;
 import android.util.SparseArray;
+
+import androidx.collection.LongSparseArray;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.telegram.SQLite.SQLiteCursor;
 import org.telegram.SQLite.SQLiteDatabase;
@@ -48,7 +52,6 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.Bulletin;
-import org.telegram.ui.Components.SharedMediaLayout;
 import org.telegram.ui.Components.StickerSetBulletinLayout;
 import org.telegram.ui.Components.StickersArchiveAlert;
 import org.telegram.ui.Components.TextStyleSpan;
@@ -58,7 +61,6 @@ import org.telegram.ui.LaunchActivity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -69,11 +71,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-
-import androidx.collection.LongSparseArray;
-import androidx.core.content.pm.ShortcutInfoCompat;
-import androidx.core.content.pm.ShortcutManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 
 @SuppressWarnings("unchecked")
 public class MediaDataController extends BaseController {
@@ -165,6 +162,11 @@ public class MediaDataController extends BaseController {
     private boolean[] stickersLoaded = new boolean[5];
     private long[] loadHash = new long[5];
     private int[] loadDate = new int[5];
+    private ArrayList<TLRPC.TL_availableReaction> reactions = new ArrayList<>();
+    private int loadReactionsHash = 0;
+    private int lastLoadedReactionsDate;
+    private Map<Long, Long> lastUpdatedReactionsDate = new HashMap<>(); //<chat id, time>
+    private Map<TLRPC.InputPeer, Map<Integer, Long>> lastUpdatedReactionsMap = new HashMap<>(); //Map<InputPeer, Map<msg_id, time>>
 
     private HashMap<String, ArrayList<TLRPC.Message>> verifyingMessages = new HashMap<>();
 
@@ -209,8 +211,13 @@ public class MediaDataController extends BaseController {
         loadingPinnedMessages.clear();
         loadFeaturedDate = 0;
         loadFeaturedHash = 0;
+        loadReactionsHash = 0;
+        lastLoadedReactionsDate = 0;
+        lastUpdatedReactionsMap = new HashMap<>();
+        lastUpdatedReactionsDate = new HashMap<>();
         allStickers.clear();
         allStickersFeatured.clear();
+        reactions.clear();
         stickersByEmoji.clear();
         featuredStickerSetsById.clear();
         featuredStickerSets.clear();
@@ -1014,6 +1021,41 @@ public class MediaDataController extends BaseController {
     public void storeTempStickerSet(TLRPC.TL_messages_stickerSet set) {
         stickerSetsById.put(set.set.id, set);
         stickerSetsByName.put(set.set.short_name, set);
+    }
+
+    public void updateReactions(int hash, ArrayList<TLRPC.TL_availableReaction> loadedReactions, int date) {
+        loadReactionsHash = hash;
+        reactions = loadedReactions;
+        lastLoadedReactionsDate = date;
+    }
+
+    public int getLoadReactionsHash() {
+        return loadReactionsHash;
+    }
+
+    public long getLastLoadedReactionsDate() {
+        return lastLoadedReactionsDate;
+    }
+
+    public Map<Integer, Long> getLastUpdatedReactionsDate(TLRPC.InputPeer inputPeer) {
+        return lastUpdatedReactionsMap.get(inputPeer);
+    }
+
+    public Long getLastUpdatedReactionsMap(Long id) {
+        Long time = lastUpdatedReactionsDate.get(id);
+        return time == null ? 0 : time;
+    }
+
+    public void putLastUpdatedReactionsMap(Long id, Long time) {
+        lastUpdatedReactionsDate.put(id, time);
+    }
+
+    public Map<TLRPC.InputPeer, Map<Integer, Long>> getLastUpdatedReactionsMap() {
+        return lastUpdatedReactionsMap;
+    }
+
+    public List<TLRPC.TL_availableReaction> getReactions() {
+        return reactions;
     }
 
     public void addNewStickerSet(TLRPC.TL_messages_stickerSet set) {

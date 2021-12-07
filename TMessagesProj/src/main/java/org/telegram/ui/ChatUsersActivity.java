@@ -23,7 +23,6 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -69,7 +68,9 @@ import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.Cells.ManageChatTextCell;
 import org.telegram.ui.Cells.ManageChatUserCell;
+import org.telegram.ui.Cells.ReactionCheckCell;
 import org.telegram.ui.Cells.ShadowSectionCell;
+import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextCheckCell2;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
@@ -86,6 +87,7 @@ import org.telegram.ui.Components.UndoView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class ChatUsersActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -163,6 +165,12 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
     private int selectType;
     private int loadingUserCellRow;
     private int loadingHeaderRow;
+    private int enableReactionsRow;
+    private int enableReactionsHelpRow;
+    private int availableReactionsRow;
+    private boolean reactionsEnabled;
+    private List<String> initEnabledReactions = new ArrayList<>();
+    private List<TLRPC.TL_availableReaction> availableReactions = new ArrayList<>();
 
     private int delayResults;
 
@@ -182,6 +190,7 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
     public final static int TYPE_ADMIN = 1;
     public final static int TYPE_USERS = 2;
     public final static int TYPE_KICKED = 3;
+    public final static int TYPE_REACTIONS = 4;
     private boolean openTransitionStarted;
     private FlickerLoadingView flickerLoadingView;
     private View progressBar;
@@ -475,6 +484,9 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
         loadingProgressRow = -1;
         loadingUserCellRow = -1;
         loadingHeaderRow = -1;
+        enableReactionsRow = -1;
+        enableReactionsHelpRow = -1;
+        availableReactionsRow = -1;
 
         rowCount = 0;
         if (type == TYPE_KICKED) {
@@ -619,6 +631,22 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                 }
                 loadingUserCellRow = rowCount++;
             }
+        } else if (type == TYPE_REACTIONS) {
+            enableReactionsRow = rowCount++;
+            enableReactionsHelpRow = rowCount++;
+
+            availableReactions = getMediaDataController().getReactions();
+            int turnedOnReactions = 0;
+            for (TLRPC.TL_availableReaction reaction: availableReactions) {
+                if (info.available_reactions.contains(reaction.reaction)) {
+                    turnedOnReactions++;
+                }
+            }
+            reactionsEnabled = turnedOnReactions > 0;
+            if (reactionsEnabled) {
+                availableReactionsRow = rowCount++;
+                rowCount += availableReactions.size();
+            }
         }
     }
 
@@ -633,7 +661,11 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
     @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
-        getNotificationCenter().removeObserver(this, NotificationCenter.chatInfoDidLoad);
+        TLRPC.InputPeer inputPeer = getMessagesController().getInputPeer(-chatId);
+        if (info != null && !initEnabledReactions.equals(info.available_reactions)) {
+            getMessagesController().setupAvailableReactions(inputPeer, info.available_reactions);
+            getNotificationCenter().removeObserver(this, NotificationCenter.chatInfoDidLoad);
+        }
     }
 
     @Override
@@ -664,6 +696,8 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                     actionBar.setTitle(LocaleController.getString("ChannelAddException", R.string.ChannelAddException));
                 }
             }
+        } else if (type == TYPE_REACTIONS) {
+            actionBar.setTitle(LocaleController.getString("Reactions", R.string.Reactions));
         }
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
@@ -1116,6 +1150,44 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                         }
                     }
                     return;
+                } else if (position == enableReactionsRow) {
+                    RecyclerListView.ViewHolder holder = listView.findViewHolderForAdapterPosition(enableReactionsRow);
+                    if (holder != null) {
+                        TextCheckCell enableReactionsCheckCell = (TextCheckCell) holder.itemView;
+                        enableReactionsCheckCell.setChecked(!enableReactionsCheckCell.isChecked());
+                        info.available_reactions.clear();
+                        if (enableReactionsCheckCell.isChecked()) {
+                            for (TLRPC.TL_availableReaction reaction : availableReactions) {
+                                info.available_reactions.add(reaction.reaction);
+                            }
+                        }
+
+                        updateRows();
+                        if (listViewAdapter != null) {
+                            listViewAdapter.notifyDataSetChanged();
+                        }
+                    }
+                } else if (position > availableReactionsRow) {
+                    RecyclerListView.ViewHolder holder = listView.findViewHolderForAdapterPosition(position);
+                    if (holder != null) {
+                        ReactionCheckCell reactionCheckCell = (ReactionCheckCell) holder.itemView;
+                        reactionCheckCell.setChecked(!reactionCheckCell.isChecked());
+                        int reactionIndex = position - availableReactionsRow - 1;
+                        if (availableReactions.size() > reactionIndex) {
+                            if (reactionCheckCell.isChecked()) {
+                                info.available_reactions.add(availableReactions.get(reactionIndex).reaction);
+                            } else {
+                                info.available_reactions.remove(availableReactions.get(reactionIndex).reaction);
+                            }
+
+                            if (info.available_reactions.isEmpty()) {
+                                updateRows();
+                                if (listViewAdapter != null) {
+                                    listViewAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1381,7 +1453,7 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
     public void setIgnoresUsers(LongSparseArray<TLRPC.TL_groupCallParticipant> participants) {
         ignoredUsers = participants;
     }
-    
+
     private void onOwnerChaged(TLRPC.User user) {
         undoView.showWithAction(-chatId, isChannel ? UndoView.ACTION_OWNER_TRANSFERED_CHANNEL : UndoView.ACTION_OWNER_TRANSFERED_GROUP, user);
         boolean foundAny = false;
@@ -1977,7 +2049,7 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
     public void setDelegate(ChatUsersActivityDelegate chatUsersActivityDelegate) {
         delegate = chatUsersActivityDelegate;
     }
-    
+
     private int getCurrentSlowmode() {
         if (info != null) {
             if (info.slowmode_seconds == 10) {
@@ -2143,6 +2215,8 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
         info = chatFull;
         if (info != null) {
             selectedSlowmode = initialSlowmode = getCurrentSlowmode();
+            initEnabledReactions.clear();
+            initEnabledReactions.addAll(info.available_reactions);
         }
     }
 
@@ -2233,6 +2307,8 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
             if (listViewAdapter != null) {
                 listViewAdapter.notifyDataSetChanged();
             }
+        } if (type == TYPE_REACTIONS) {
+
         } else {
             loadingUsers = true;
             if (emptyView != null) {
@@ -2985,7 +3061,7 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                 }
                 return true;
             }
-            return viewType == 0 || viewType == 2 || viewType == 6;
+            return viewType == 0 || viewType == 2 || viewType == 6 || viewType == 12 || viewType == 13;
         }
 
         @Override
@@ -3091,6 +3167,30 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                     flickerLoadingView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
                     flickerLoadingView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                     view = flickerLoadingView;
+                    break;
+                case 12:
+                    TextCheckCell enableReactionsCheckCell = new TextCheckCell(mContext);
+                    enableReactionsCheckCell.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                    enableReactionsCheckCell.setColors(
+                            Theme.key_windowBackgroundWhite,
+                            Theme.key_switchTrackBlue,
+                            Theme.key_switchTrackBlueChecked,
+                            Theme.key_windowBackgroundWhite,
+                            Theme.key_windowBackgroundWhite
+                    );
+                    view = enableReactionsCheckCell;
+                    break;
+                case 13:
+                    ReactionCheckCell reactionCheckCell = new ReactionCheckCell(mContext);
+                    reactionCheckCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                    reactionCheckCell.setColors(
+                            Theme.key_windowBackgroundWhiteBlackText,
+                            Theme.key_switchTrack,
+                            Theme.key_switchTrackChecked,
+                            Theme.key_windowBackgroundWhite,
+                            Theme.key_windowBackgroundWhite
+                    );
+                    view = reactionCheckCell;
                     break;
                 case 9:
                 default:
@@ -3235,6 +3335,8 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                         }
                     } else if (position == gigaInfoRow) {
                         privacyCell.setText(LocaleController.getString("BroadcastGroupConvertInfo", R.string.BroadcastGroupConvertInfo));
+                    } else if (position == enableReactionsHelpRow) {
+                        privacyCell.setText(isChannel ? LocaleController.getString("EnableReactionsChannelHelp", R.string.EnableReactionsChannelHelp) : LocaleController.getString("EnableReactionsGroupHelp", R.string.EnableReactionsGroupHelp));
                     }
                     break;
                 case 2:
@@ -3294,6 +3396,8 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                         headerCell.setText(LocaleController.getString("Slowmode", R.string.Slowmode));
                     } else if (position == gigaHeaderRow) {
                         headerCell.setText(LocaleController.getString("BroadcastGroup", R.string.BroadcastGroup));
+                    } else if (position == availableReactionsRow) {
+                        headerCell.setText(LocaleController.getString("AvailableReactions", R.string.AvailableReactions));
                     }
                     break;
                 case 6:
@@ -3366,6 +3470,25 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                         flickerLoadingView.setItemsCount(1);
                     }
                     break;
+                case 12:
+                    TextCheckCell enableReactionsCheckCell = (TextCheckCell) holder.itemView;
+                    enableReactionsCheckCell.setTextAndCheck(LocaleController.getString("EnableReactions", R.string.EnableReactions), reactionsEnabled, false);
+                    enableReactionsCheckCell.setBackgroundDrawable(Theme.getSelectorDrawable(Theme.getColor(Theme.key_listSelector), reactionsEnabled ? Theme.key_switchTrackChecked : Theme.key_switchTrack));
+                    break;
+                case 13:
+                    ReactionCheckCell reactionCheckCell = (ReactionCheckCell) holder.itemView;
+                    int reactionIndex = position - availableReactionsRow - 1;
+                    if (availableReactions.size() > reactionIndex) {
+                        TLRPC.TL_availableReaction reaction = availableReactions.get(reactionIndex);
+                        reactionCheckCell.setTextAndValueAndCheck(
+                                reaction.reaction,
+                                reaction.title,
+                                info.available_reactions.contains(reaction.reaction),
+                                false,
+                                availableReactions.size() > reactionIndex + 1
+                        );
+                    }
+                    break;
             }
         }
 
@@ -3386,9 +3509,9 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                 return 0;
             } else if (position == addNewSectionRow || position == participantsDividerRow || position == participantsDivider2Row) {
                 return 3;
-            } else if (position == restricted1SectionRow || position == permissionsSectionRow || position == slowmodeRow || position == gigaHeaderRow) {
+            } else if (position == restricted1SectionRow || position == permissionsSectionRow || position == slowmodeRow || position == gigaHeaderRow || position == availableReactionsRow) {
                 return 5;
-            } else if (position == participantsInfoRow || position == slowmodeInfoRow || position == gigaInfoRow) {
+            } else if (position == participantsInfoRow || position == slowmodeInfoRow || position == gigaInfoRow || position == enableReactionsHelpRow) {
                 return 1;
             } else if (position == blockedEmptyRow) {
                 return 4;
@@ -3405,6 +3528,10 @@ public class ChatUsersActivity extends BaseFragment implements NotificationCente
                 return 10;
             } else if (position == loadingUserCellRow) {
                 return 11;
+            } else if (position == enableReactionsRow) {
+                return 12;
+            } else if (position > availableReactionsRow) {
+                return 13;
             }
             return 0;
         }

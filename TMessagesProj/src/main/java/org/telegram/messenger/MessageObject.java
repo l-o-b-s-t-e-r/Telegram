@@ -25,6 +25,8 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.Base64;
 
+import androidx.collection.LongSparseArray;
+
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
@@ -56,8 +58,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import androidx.collection.LongSparseArray;
 
 public class MessageObject {
 
@@ -395,6 +395,7 @@ public class MessageObject {
     public static class GroupedMessages {
         public long groupId;
         public boolean hasSibling;
+        public boolean hasReactions;
         public boolean hasCaption;
         public ArrayList<MessageObject> messages = new ArrayList<>();
         public ArrayList<GroupedMessagePosition> posArray = new ArrayList<>();
@@ -455,6 +456,7 @@ public class MessageObject {
             boolean needShare = false;
             boolean isMusic = false;
             hasSibling = false;
+            hasReactions = false;
 
             hasCaption = false;
 
@@ -495,6 +497,9 @@ public class MessageObject {
 
                 if (messageObject.caption != null) {
                     hasCaption = true;
+                }
+                if (messageObject.hasReactions()) {
+                    hasReactions = true;
                 }
             }
             if (isDocuments) {
