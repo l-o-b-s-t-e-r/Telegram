@@ -2,20 +2,11 @@ package org.telegram.ui.Components.voip;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Color;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.style.CharacterStyle;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -23,75 +14,40 @@ import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.Components.CubicBezierInterpolator;
-import org.telegram.ui.Components.EllipsizeSpanAnimator;
 import org.telegram.ui.Components.LayoutHelper;
-
-import java.util.ArrayList;
 
 public class VoIPStatusTextView extends FrameLayout {
 
-    TextView[] textView = new TextView[2];
-    TextView reconnectTextView;
+    EllipsizeTextView[] textView = new EllipsizeTextView[2];
+    EllipsizeTextView reconnectTextView;
     VoIPTimerView timerView;
 
     CharSequence nextTextToSet;
+    boolean nextEllipsisToSet;
     boolean animationInProgress;
-
-    private boolean attachedToWindow;
 
     ValueAnimator animator;
     boolean timerShowing;
 
-    EllipsizeSpanAnimator ellipsizeAnimator;
-
     public VoIPStatusTextView(@NonNull Context context) {
         super(context);
         for (int i = 0; i < 2; i++) {
-            textView[i] = new TextView(context);
-            textView[i].setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-            textView[i].setShadowLayer(AndroidUtilities.dp(3), 0, AndroidUtilities.dp(.666666667f), 0x4C000000);
-            textView[i].setTextColor(Color.WHITE);
-            textView[i].setGravity(Gravity.CENTER_HORIZONTAL);
+            textView[i] = new EllipsizeTextView(context);
             addView(textView[i]);
         }
 
-        reconnectTextView = new TextView(context);
-        reconnectTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        reconnectTextView.setShadowLayer(AndroidUtilities.dp(3), 0, AndroidUtilities.dp(.666666667f), 0x4C000000);
-        reconnectTextView.setTextColor(Color.WHITE);
-        reconnectTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+        reconnectTextView = new EllipsizeTextView(context);
         addView(reconnectTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 22, 0, 0));
 
-        ellipsizeAnimator = new EllipsizeSpanAnimator(this);
-        SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString("VoipReconnecting", R.string.VoipReconnecting));
-        SpannableString ell = new SpannableString("...");
-        ellipsizeAnimator.wrap(ell, 0);
-        ssb.append(ell);
-        reconnectTextView.setText(ssb);
+        reconnectTextView.setText(LocaleController.getString("VoipReconnecting", R.string.VoipReconnecting));
         reconnectTextView.setVisibility(View.GONE);
 
         timerView = new VoIPTimerView(context);
         addView(timerView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
-
     }
 
     public void setText(String text, boolean ellipsis, boolean animated) {
         CharSequence nextString = text;
-        if (ellipsis) {
-            SpannableStringBuilder ssb = new SpannableStringBuilder(text);
-            ellipsizeAnimator.reset();
-            SpannableString ell = new SpannableString("...");
-            ellipsizeAnimator.wrap(ell, 0);
-            ssb.append(ell);
-            nextString = ssb;
-
-            ellipsizeAnimator.addView(textView[0]);
-            ellipsizeAnimator.addView(textView[1]);
-        } else {
-            ellipsizeAnimator.removeView(textView[0]);
-            ellipsizeAnimator.removeView(textView[1]);
-        }
-
         if (TextUtils.isEmpty(textView[0].getText())) {
             animated = false;
         }
@@ -101,7 +57,7 @@ public class VoIPStatusTextView extends FrameLayout {
                 animator.cancel();
             }
             animationInProgress = false;
-            textView[0].setText(nextString);
+            textView[0].setText(nextString, ellipsis);
             textView[0].setVisibility(View.VISIBLE);
             textView[1].setVisibility(View.GONE);
             timerView.setVisibility(View.GONE);
@@ -109,17 +65,18 @@ public class VoIPStatusTextView extends FrameLayout {
         } else {
             if (animationInProgress) {
                 nextTextToSet = nextString;
+                nextEllipsisToSet = ellipsis;
                 return;
             }
 
             if (timerShowing) {
-                textView[0].setText(nextString);
+                textView[0].setText(nextString, ellipsis);
                 replaceViews(timerView, textView[0], null);
             } else {
                 if (!textView[0].getText().equals(nextString)) {
-                    textView[1].setText(nextString);
+                    textView[1].setText(nextString, ellipsis);
                     replaceViews(textView[0], textView[1], () -> {
-                        TextView v = textView[0];
+                        EllipsizeTextView v = textView[0];
                         textView[0] = textView[1];
                         textView[1] = v;
                     });
@@ -148,14 +105,12 @@ public class VoIPStatusTextView extends FrameLayout {
         } else {
             if (animationInProgress) {
                 nextTextToSet = "timer";
+                nextEllipsisToSet = false;
                 return;
             }
             timerShowing = true;
             replaceViews(textView[0], timerView, null);
         }
-
-        ellipsizeAnimator.removeView(textView[0]);
-        ellipsizeAnimator.removeView(textView[1]);
     }
 
 
@@ -204,14 +159,15 @@ public class VoIPStatusTextView extends FrameLayout {
                     if (nextTextToSet.equals("timer")) {
                         showTimer(true);
                     } else {
-                        textView[1].setText(nextTextToSet);
+                        textView[1].setText(nextTextToSet, nextEllipsisToSet);
                         replaceViews(textView[0], textView[1], () -> {
-                            TextView v = textView[0];
+                            EllipsizeTextView v = textView[0];
                             textView[0] = textView[1];
                             textView[1] = v;
                         });
                     }
                     nextTextToSet = null;
+                    nextEllipsisToSet = false;
                 }
             }
         });
@@ -221,6 +177,10 @@ public class VoIPStatusTextView extends FrameLayout {
 
     public void setSignalBarCount(int count) {
         timerView.setSignalBarCount(count);
+    }
+
+    public int getSignalBarCount() {
+        return  timerView.getSignalBarCount();
     }
 
     public void showReconnect(boolean showReconnecting, boolean animated) {
@@ -244,26 +204,5 @@ public class VoIPStatusTextView extends FrameLayout {
                 }).setDuration(150).start();
             }
         }
-
-        if (showReconnecting) {
-            ellipsizeAnimator.addView(reconnectTextView);
-        } else {
-            ellipsizeAnimator.removeView(reconnectTextView);
-        }
     }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        attachedToWindow = true;
-        ellipsizeAnimator.onAttachedToWindow();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        attachedToWindow = false;
-        ellipsizeAnimator.onDetachedFromWindow();
-    }
-
 }

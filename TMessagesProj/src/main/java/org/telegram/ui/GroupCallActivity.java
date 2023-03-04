@@ -4095,7 +4095,7 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
         flipButton.showText(false, false);
         RLottieImageView flipIconView = new RLottieImageView(context);
         flipButton.addView(flipIconView, LayoutHelper.createFrame(32, 32, 0, 18, 10, 18, 0));
-        flipIcon = new RLottieDrawable(R.raw.camera_flip, "" + R.raw.camera_flip, AndroidUtilities.dp(24), AndroidUtilities.dp(24), true, null);
+        flipIcon = new RLottieDrawable(R.raw.camera_flip_2, "" + R.raw.camera_flip_2, AndroidUtilities.dp(24), AndroidUtilities.dp(24), true, null);
         flipIconView.setAnimation(flipIcon);
         flipButton.setOnClickListener(view -> {
             renderersContainer.delayHideUi();

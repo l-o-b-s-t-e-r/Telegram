@@ -17,8 +17,11 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,13 +38,18 @@ import java.util.HashMap;
 
 public class VoIPNotificationsLayout extends LinearLayout {
 
-    HashMap<String, NotificationView> viewsByTag = new HashMap<>();
+    HashMap<Integer, NotificationView> viewsByTag = new HashMap<>();
     ArrayList<NotificationView> viewToAdd = new ArrayList<>();
     ArrayList<NotificationView> viewToRemove = new ArrayList<>();
     TransitionSet transitionSet;
     boolean lockAnimation;
     boolean wasChanged;
     Runnable onViewsUpdated;
+
+    public static final int MICROPHONE_MUTED = 1;
+    public static final int WEAK_SIGNAL = 2;
+    public static final int BLUETOOTH_CONNECTED = 3;
+    public static final int CAMERA_IS_OFF = 4;
 
     public VoIPNotificationsLayout(Context context) {
         super(context);
@@ -70,20 +78,17 @@ public class VoIPNotificationsLayout extends LinearLayout {
         }
     }
 
-    public void addNotification(int iconRes, String text, String tag, boolean animated) {
+    public void addNotification(String text, int tag) {
         if (viewsByTag.get(tag) != null) {
             return;
         }
 
         NotificationView view = new NotificationView(getContext());
         view.tag = tag;
-        view.iconView.setImageResource(iconRes);
         view.textView.setText(text);
         viewsByTag.put(tag, view);
 
-        if (animated) {
-            view.startAnimation();
-        }
+        view.startAnimation();
         if (lockAnimation) {
             viewToAdd.add(view);
         } else {
@@ -92,7 +97,7 @@ public class VoIPNotificationsLayout extends LinearLayout {
         }
     }
 
-    public void removeNotification(String tag) {
+    public void removeNotification(int tag) {
         NotificationView view = viewsByTag.remove(tag);
         if (view != null) {
             if (lockAnimation) {
@@ -129,7 +134,7 @@ public class VoIPNotificationsLayout extends LinearLayout {
         for (int i = 0; i < viewToAdd.size(); i++) {
             NotificationView view = viewToAdd.get(i);
             for (int j = 0; j < viewToRemove.size(); j++) {
-                if (view.tag.equals(viewToRemove.get(j).tag)) {
+                if (view.tag == (viewToRemove.get(j).tag)) {
                     viewToAdd.remove(i);
                     viewToRemove.remove(j);
                     i--;
@@ -183,8 +188,7 @@ public class VoIPNotificationsLayout extends LinearLayout {
 
     private static class NotificationView extends FrameLayout {
 
-        public String tag;
-        ImageView iconView;
+        public int tag;
         TextView textView;
 
         public NotificationView(@NonNull Context context) {
@@ -192,33 +196,40 @@ public class VoIPNotificationsLayout extends LinearLayout {
             setFocusable(true);
             setFocusableInTouchMode(true);
 
-            iconView = new ImageView(context);
-            setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(16), ColorUtils.setAlphaComponent(Color.BLACK, (int) (255 * 0.4f))));
-            addView(iconView, LayoutHelper.createFrame(24, 24, 0, 10, 4, 10, 4));
+            setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(16), ColorUtils.setAlphaComponent(Color.BLACK, 30)));
 
             textView = new TextView(context);
             textView.setTextColor(Color.WHITE);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 44, 4, 16, 4));
+            addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL, 16, 4, 16, 4));
         }
 
         public void startAnimation() {
             textView.setVisibility(View.GONE);
             postDelayed(() -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    TransitionSet transitionSet = new TransitionSet();
-                    transitionSet.
-                            addTransition(new Fade(Fade.IN).setDuration(150))
-                            .addTransition(new ChangeBounds().setDuration(200));
-                    transitionSet.setOrdering(TransitionSet.ORDERING_TOGETHER);
-                    ViewParent parent = getParent();
-                    if (parent != null) {
-                        TransitionManager.beginDelayedTransition((ViewGroup) parent, transitionSet);
-                    }
+                ViewParent parent = getParent();
+                if (parent instanceof View) {
+                    Animation scaleAnimation = new ScaleAnimation(
+                            0f, 1f, // Start and end values for the X axis scaling
+                            0, 1f, // Start and end values for the Y axis scaling
+                            Animation.RELATIVE_TO_SELF, 0.5f, // Pivot point of X scaling
+                            Animation.RELATIVE_TO_SELF, 0.5f); // Pivot point of Y scaling
+                    scaleAnimation.setFillAfter(true); // Needed to keep the result of the animation
+                    scaleAnimation.setDuration(200);
+
+                    Animation alphaAnimation = new AlphaAnimation(0f, 1f);
+                    alphaAnimation.setFillAfter(true);
+                    alphaAnimation.setDuration(150);
+
+                    AnimationSet animationSet = new AnimationSet(true);
+                    animationSet.addAnimation(scaleAnimation);
+                    animationSet.addAnimation(alphaAnimation);
+
+                    ((View) parent).startAnimation(animationSet);
                 }
 
                 textView.setVisibility(View.VISIBLE);
-            }, 400);
+            }, 50);
         }
     }
 

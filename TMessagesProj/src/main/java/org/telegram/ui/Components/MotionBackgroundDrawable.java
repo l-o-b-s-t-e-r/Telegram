@@ -322,6 +322,10 @@ public class MotionBackgroundDrawable extends Drawable {
         parentView = new WeakReference<>(view);
     }
 
+    //c1 - bottom right
+    //c2 - bottom left
+    //c3 - top left
+    //c4 - top right
     public void setColors(int c1, int c2, int c3, int c4) {
         setColors(c1, c2, c3, c4, 0, true);
     }
@@ -546,6 +550,7 @@ public class MotionBackgroundDrawable extends Drawable {
 
         updateAnimation(true);
     }
+
     public void drawPattern(Canvas canvas) {
         android.graphics.Rect bounds = getBounds();
         canvas.save();
@@ -872,6 +877,9 @@ public class MotionBackgroundDrawable extends Drawable {
                 phase = (int) (posAnimationProgress / progressPerPhase);
                 progress = 1f - (posAnimationProgress - phase * progressPerPhase) / progressPerPhase;
                 isNeedGenerateGradient = true;
+                if (animationProgressProvider != null) {
+                    animationProgressProvider.provide(this);
+                }
             } else {
                 if (rotatingPreview) {
                     int stageBefore;
@@ -1038,7 +1046,15 @@ public class MotionBackgroundDrawable extends Drawable {
         this.isIndeterminateAnimation = isIndeterminateAnimation;
     }
 
+    public void setOnlyIndeterminateAnimation(boolean isIndeterminateAnimation) {
+        this.isIndeterminateAnimation = isIndeterminateAnimation;
+    }
+
     public void setOverrideBitmapPaint(Paint overrideBitmapPaint) {
         this.overrideBitmapPaint = overrideBitmapPaint;
+    }
+
+    public Bitmap getCurrentBitmap() {
+        return currentBitmap;
     }
 }

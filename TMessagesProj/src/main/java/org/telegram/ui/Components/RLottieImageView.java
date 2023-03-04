@@ -60,6 +60,10 @@ public class RLottieImageView extends ImageView {
         }
     }
 
+    public Integer getLayerColor(String layer) {
+        return layerColors != null ? layerColors.get(layer) : null;
+    }
+
     public void replaceColors(int[] colors) {
         if (drawable != null) {
             drawable.replaceColors(colors);

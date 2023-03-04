@@ -111,4 +111,8 @@ public class VoIPTimerView extends View {
         signalBarCount = count;
         invalidate();
     }
+
+    public int getSignalBarCount() {
+        return signalBarCount;
+    }
 }

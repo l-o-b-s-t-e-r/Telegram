@@ -4049,6 +4049,9 @@
     <string name="VoipSwitchToVideoCall">Switch to video call?</string>
     <string name="VoipSwitch">SWITCH</string>
     <string name="VoipUserMicrophoneIsOff">%s\'s microphone is off</string>
+    <string name="VoipYourMicrophoneIsOff">Your microphone is turned off</string>
+    <string name="VoipBluetoothConnected">Bluetooth device connected</string>
+    <string name="VoipWeakSignal">Weak network signal</string>
     <string name="VoipUserCameraIsOff">%s\'s camera is off</string>
     <string name="AcceptCall">Accept</string>
     <string name="DeclineCall">Decline</string>

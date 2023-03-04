@@ -778,6 +778,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				} else {
 					delayedStartOutgoingCall = () -> {
 						delayedStartOutgoingCall = null;
+						//startOutgoingCall();
 						startOutgoingCall();
 					};
 					AndroidUtilities.runOnUIThread(delayedStartOutgoingCall, 2000);
@@ -2662,15 +2663,28 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 
 	public void toggleSpeakerphoneOrShowRouteSheet(Context context, boolean fromOverlayWindow) {
 		if (isBluetoothHeadsetConnected() && hasEarpiece()) {
+			int selectedIndex;
+			if (isBluetoothOn()) {
+				selectedIndex = 2;
+			} else if (isSpeakerphoneOn()) {
+				selectedIndex = 0;
+			} else {
+				selectedIndex = 1;
+			}
 			BottomSheet.Builder builder = new BottomSheet.Builder(context)
 					.setTitle(LocaleController.getString("VoipOutputDevices", R.string.VoipOutputDevices), true)
 					.setItems(new CharSequence[]{
 									LocaleController.getString("VoipAudioRoutingSpeaker", R.string.VoipAudioRoutingSpeaker),
 									isHeadsetPlugged ? LocaleController.getString("VoipAudioRoutingHeadset", R.string.VoipAudioRoutingHeadset) : LocaleController.getString("VoipAudioRoutingEarpiece", R.string.VoipAudioRoutingEarpiece),
-									currentBluetoothDeviceName != null ? currentBluetoothDeviceName : LocaleController.getString("VoipAudioRoutingBluetooth", R.string.VoipAudioRoutingBluetooth)},
-							new int[]{R.drawable.calls_menu_speaker,
-									isHeadsetPlugged ? R.drawable.calls_menu_headset : R.drawable.calls_menu_phone,
-									R.drawable.calls_menu_bluetooth}, (dialog, which) -> {
+									currentBluetoothDeviceName != null ? currentBluetoothDeviceName : LocaleController.getString("VoipAudioRoutingBluetooth", R.string.VoipAudioRoutingBluetooth)
+							},
+							new int[]{
+									R.drawable.msg_call_speaker,
+									isHeadsetPlugged ? R.drawable.calls_menu_headset : R.drawable.msg_call_earpiece,
+									R.drawable.msg_call_bluetooth
+							},
+							selectedIndex,
+							(dialog, which) -> {
 								if (getSharedInstance() == null) {
 									return;
 								}
@@ -3690,12 +3704,20 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		}
 	}
 
+	public boolean isProximityNear() {
+		return isProximityNear;
+	}
+
 	private void checkIsNear(boolean newIsNear) {
 		if (newIsNear != isProximityNear) {
 			if (BuildVars.LOGS_ENABLED) {
 				FileLog.d("proximity " + newIsNear);
 			}
 			isProximityNear = newIsNear;
+			for (int a = 0; a < stateListeners.size(); a++) {
+				StateListener l = stateListeners.get(a);
+				l.onProximityChanged();
+			}
 			try {
 				if (isProximityNear) {
 					proximityWakelock.acquire();
@@ -4405,6 +4427,10 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		}
 
 		default void onScreenOnChange(boolean screenOn) {
+
+		}
+
+		default void onProximityChanged() {
 
 		}
 	}

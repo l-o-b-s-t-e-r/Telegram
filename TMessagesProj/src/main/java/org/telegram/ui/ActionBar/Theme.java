@@ -947,7 +947,7 @@ public class Theme {
                 lastRect.set(bounds);
                 return invalidate;
             }
-            
+
             public Path getPath() {
                 return path;
             }
@@ -1646,16 +1646,17 @@ public class Theme {
                 submenuBackground = getColor(key_actionBarDefaultSubmenuBackground);
             }
             currentColors.put(key_actionBarDefaultSubmenuSeparator, Color.argb(
-                Color.alpha(submenuBackground),
-                Math.max(0, Color.red(submenuBackground) - 10),
-                Math.max(0, Color.green(submenuBackground) - 10),
-                Math.max(0, Color.blue(submenuBackground) - 10)
+                    Color.alpha(submenuBackground),
+                    Math.max(0, Color.red(submenuBackground) - 10),
+                    Math.max(0, Color.green(submenuBackground) - 10),
+                    Math.max(0, Color.blue(submenuBackground) - 10)
             ));
 
             return !isMyMessagesGradientColorsNear;
         }
 
         private float[] tempHSV = new float[3];
+
         private int setHue(int color, int hueFromColor) {
             Color.colorToHSV(hueFromColor, tempHSV);
             float hue = tempHSV[0];
@@ -1665,10 +1666,12 @@ public class Theme {
             }
             return Color.HSVToColor(Color.alpha(color), tempHSV);
         }
+
         private float getHue(int color) {
             Color.colorToHSV(color, tempHSV);
             return tempHSV[0];
         }
+
         private int bubbleSelectedOverlay(int bubble, int accentColor) {
             Color.colorToHSV(accentColor, tempHSV);
             float h = tempHSV[0];
@@ -1680,6 +1683,7 @@ public class Theme {
             tempHSV[2] = Math.max(0, Math.min(1, tempHSV[2] - .05f));
             return Color.HSVToColor(30, tempHSV);
         }
+
         private int textSelectionBackground(boolean isOut, int bubble, int accentColor) {
             Color.colorToHSV(accentColor, tempHSV);
             float h = tempHSV[0];
@@ -1691,6 +1695,7 @@ public class Theme {
             tempHSV[2] = Math.max(0, Math.min(1, tempHSV[2] - .15f));
             return Color.HSVToColor(80, tempHSV);
         }
+
         private int textSelectionHandle(int bubble, int accentColor) {
             Color.colorToHSV(accentColor, tempHSV);
             float h = tempHSV[0];
@@ -1702,12 +1707,14 @@ public class Theme {
             tempHSV[2] = Math.max(0, Math.min(1, tempHSV[2] - (tempHSV[2] > .7f ? .25f : .125f)));
             return Theme.blendOver(bubble, Color.HSVToColor(255, tempHSV));
         }
+
         private int linkSelectionBackground(int linkColor, int bgColor, boolean isDarkTheme) {
             Color.colorToHSV(ColorUtils.blendARGB(linkColor, bgColor, .25f), tempHSV);
             tempHSV[1] = Math.max(0, Math.min(1, tempHSV[1] - .1f));
             tempHSV[2] = Math.max(0, Math.min(1, tempHSV[2] + (isDarkTheme ? .1f : 0)));
             return Color.HSVToColor(0x33, tempHSV);
         }
+
         private int locationPlaceholderColor(float accentHue, int bubbleColor, boolean isDarkTheme) {
             if (isDarkTheme) {
                 return 0x1effffff;
@@ -1724,7 +1731,8 @@ public class Theme {
                 return Color.HSVToColor(0x5a, tempHSV);
             }
         }
-        private int averageColor(HashMap<String, Integer> colors, String ...keys) {
+
+        private int averageColor(HashMap<String, Integer> colors, String... keys) {
             int r = 0, g = 0, b = 0, c = 0;
             for (int i = 0; i < keys.length; ++i) {
                 if (!colors.containsKey(keys[i])) {
@@ -1736,7 +1744,8 @@ public class Theme {
                     g += Color.green(color);
                     b += Color.blue(color);
                     c++;
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
             if (c == 0) {
                 return 0;
@@ -1843,15 +1852,15 @@ public class Theme {
     public static int blendOver(int A, int B) { // B over A
         // over operator: https://en.wikipedia.org/wiki/Alpha_compositing#Description
         float aB = Color.alpha(B) / 255f,
-              aA = Color.alpha(A) / 255f,
-              aC = (aB + aA * (1 - aB));
+                aA = Color.alpha(A) / 255f,
+                aC = (aB + aA * (1 - aB));
         if (aC == 0f)
             return 0;
         return Color.argb(
-            (int) (aC * 255),
-            (int) ((Color.red(B) * aB + Color.red(A) * aA * (1 - aB)) / aC),
-            (int) ((Color.green(B) * aB + Color.green(A) * aA * (1 - aB)) / aC),
-            (int) ((Color.blue(B) * aB + Color.blue(A) * aA * (1 - aB)) / aC)
+                (int) (aC * 255),
+                (int) ((Color.red(B) * aB + Color.red(A) * aA * (1 - aB)) / aC),
+                (int) ((Color.green(B) * aB + Color.green(A) * aA * (1 - aB)) / aC),
+                (int) ((Color.blue(B) * aB + Color.blue(A) * aA * (1 - aB)) / aC)
         );
     }
 
@@ -1884,8 +1893,8 @@ public class Theme {
         tempHSV[1] = MathUtils.clamp(AndroidUtilities.lerp(tempHSV[1], sat2, satT), 0, 1);
         tempHSV[2] = MathUtils.clamp(AndroidUtilities.lerp(tempHSV[2], val2, valT), 0, 1);
         return Color.HSVToColor(
-            AndroidUtilities.lerp(Color.alpha(color1), Color.alpha(color2), .85f),
-            tempHSV
+                AndroidUtilities.lerp(Color.alpha(color1), Color.alpha(color2), .85f),
+                tempHSV
         );
     }
 
@@ -1895,12 +1904,12 @@ public class Theme {
 
     public static int reverseBlendOver(float ax, int y, int z) {
         float ay = Color.alpha(y) / 255f,
-              az = Color.alpha(z) / 255f;
+                az = Color.alpha(z) / 255f;
         return Color.argb(
-            (int) (ax * 255),
-            (int) ((Color.red(y) * ay * (1 - ax) - Color.red(z) * az) / ax),
-            (int) ((Color.green(y) * ay * (1 - ax) - Color.green(z) * az) / ax),
-            (int) ((Color.blue(y) * ay * (1 - ax) - Color.blue(z) * az) / ax)
+                (int) (ax * 255),
+                (int) ((Color.red(y) * ay * (1 - ax) - Color.red(z) * az) / ax),
+                (int) ((Color.green(y) * ay * (1 - ax) - Color.green(z) * az) / ax),
+                (int) ((Color.blue(y) * ay * (1 - ax) - Color.blue(z) * az) / ax)
         );
     }
 
@@ -1951,7 +1960,7 @@ public class Theme {
                 fileName = "";
             }
             if (!TextUtils.isEmpty(info.originalFileName)) {
-                if (!info.originalFileName.equals(info.fileName)){
+                if (!info.originalFileName.equals(info.fileName)) {
                     try {
                         File fromFile = new File(ApplicationLoader.getFilesDirFixed(), info.originalFileName);
                         File toFile = new File(ApplicationLoader.getFilesDirFixed(), originalFileName = parentTheme.generateWallpaperName(parentAccent, true));
@@ -2086,7 +2095,7 @@ public class Theme {
         public OverrideWallpaperInfo overrideWallpaper;
         private int isDark = UNKNOWN;
 
-        private final static int DARK= 1;
+        private final static int DARK = 1;
         private final static int LIGHT = 0;
         private final static int UNKNOWN = -1;
 
@@ -2172,7 +2181,7 @@ public class Theme {
 
         private void loadOverrideWallpaper(SharedPreferences sharedPreferences, ThemeAccent accent, String key) {
             try {
-                String json = sharedPreferences.getString(key,  null);
+                String json = sharedPreferences.getString(key, null);
                 if (TextUtils.isEmpty(json)) {
                     return;
                 }
@@ -2828,7 +2837,8 @@ public class Theme {
             return getColor(key);
         }
 
-        default void setAnimatedColor(String key, int color) {}
+        default void setAnimatedColor(String key, int color) {
+        }
 
         default Drawable getDrawable(String drawableKey) {
             return null;
@@ -3855,6 +3865,66 @@ public class Theme {
     public static final String key_voipgroup_windowBackgroundWhiteInputField = "voipgroup_windowBackgroundWhiteInputField";
     public static final String key_voipgroup_windowBackgroundWhiteInputFieldActivated = "voipgroup_windowBackgroundWhiteInputFieldActivated";
 
+    public static final String key_voipgroup_blueVioletTopLeftGradient = "voipgroup_blueVioletTopLeftGradient";
+    public static final String key_voipgroup_blueVioletTopRightGradient = "voipgroup_blueVioletTopRightGradient";
+    public static final String key_voipgroup_blueVioletBottomLeftGradient = "voipgroup_blueVioletBottomLeftGradient";
+    public static final String key_voipgroup_blueVioletBottomRightGradient = "voipgroup_blueVioletBottomRightGradient";
+
+    public static final String key_voipgroup_blueVioletTopLeftGradientDefault = "voipgroup_blueVioletTopLeftGradientDefault";
+    public static final String key_voipgroup_blueVioletTopRightGradientDefault = "voipgroup_blueVioletTopRightGradientDefault";
+    public static final String key_voipgroup_blueVioletBottomLeftGradientDefault = "voipgroup_blueVioletBottomLeftGradientDefault";
+    public static final String key_voipgroup_blueVioletBottomRightGradientDefault = "voipgroup_blueVioletBottomRightGradientDefault";
+
+    public static final String key_voipgroup_blueVioletDarkTopLeftGradient = "voipgroup_blueVioletDarkTopLeftGradient";
+    public static final String key_voipgroup_blueVioletDarkTopRightGradient = "voipgroup_blueVioletDarkTopRightGradient";
+    public static final String key_voipgroup_blueVioletDarkBottomLeftGradient = "voipgroup_blueVioletDarkBottomLeftGradient";
+    public static final String key_voipgroup_blueVioletDarkBottomRightGradient = "voipgroup_blueVioletDarkBottomRightGradient";
+
+    public static final String key_voipgroup_blueGreenTopLeftGradient = "voipgroup_blueGreenTopLeftGradient";
+    public static final String key_voipgroup_blueGreenTopRightGradient = "voipgroup_blueGreenTopRightGradient";
+    public static final String key_voipgroup_blueGreenBottomLeftGradient = "voipgroup_blueGreenBottomLeftGradient";
+    public static final String key_voipgroup_blueGreenBottomRightGradient = "voipgroup_blueGreenBottomRightGradient";
+
+    public static final String key_voipgroup_blueGreenTopLeftGradientDefault = "voipgroup_blueGreenTopLeftGradientDefault";
+    public static final String key_voipgroup_blueGreenTopRightGradientDefault = "voipgroup_blueGreenTopRightGradientDefault";
+    public static final String key_voipgroup_blueGreenBottomLeftGradientDefault = "voipgroup_blueGreenBottomLeftGradientDefault";
+    public static final String key_voipgroup_blueGreenBottomRightGradientDefault = "voipgroup_blueGreenBottomRightGradientDefault";
+
+    public static final String key_voipgroup_blueGreenDarkTopLeftGradient = "voipgroup_blueGreenDarkTopLeftGradient";
+    public static final String key_voipgroup_blueGreenDarkTopRightGradient = "voipgroup_blueGreenDarkTopRightGradient";
+    public static final String key_voipgroup_blueGreenDarkBottomLeftGradient = "voipgroup_blueGreenDarkBottomLeftGradient";
+    public static final String key_voipgroup_blueGreenDarkBottomRightGradient = "voipgroup_blueGreenDarkBottomRightGradient";
+
+    public static final String key_voipgroup_greenTopLeftGradient = "voipgroup_greenTopLeftGradient";
+    public static final String key_voipgroup_greenTopRightGradient = "voipgroup_greenTopRightGradient";
+    public static final String key_voipgroup_greenBottomLeftGradient = "voipgroup_greenBottomLeftGradient";
+    public static final String key_voipgroup_greenBottomRightGradient = "voipgroup_greenBottomRightGradient";
+
+    public static final String key_voipgroup_greenTopLeftGradientDefault = "voipgroup_greenTopLeftGradientDefault";
+    public static final String key_voipgroup_greenTopRightGradientDefault = "voipgroup_greenTopRightGradientDefault";
+    public static final String key_voipgroup_greenBottomLeftGradientDefault = "voipgroup_greenBottomLeftGradientDefault";
+    public static final String key_voipgroup_greenBottomRightGradientDefault = "voipgroup_greenBottomRightGradientDefault";
+
+    public static final String key_voipgroup_greenDarkTopLeftGradient = "voipgroup_greenDarkTopLeftGradient";
+    public static final String key_voipgroup_greenDarkTopRightGradient = "voipgroup_greenDarkTopRightGradient";
+    public static final String key_voipgroup_greenDarkBottomLeftGradient = "voipgroup_greenDarkBottomLeftGradient";
+    public static final String key_voipgroup_greenDarkBottomRightGradient = "voipgroup_greenDarkBottomRightGradient";
+
+    public static final String key_voipgroup_orangeRedTopLeftGradient = "voipgroup_orangeRedTopLeftGradient";
+    public static final String key_voipgroup_orangeRedTopRightGradient = "voipgroup_orangeRedTopRightGradient";
+    public static final String key_voipgroup_orangeRedBottomLeftGradient = "voipgroup_orangeRedBottomLeftGradient";
+    public static final String key_voipgroup_orangeRedBottomRightGradient = "voipgroup_orangeRedBottomRightGradient";
+
+    public static final String key_voipgroup_orangeRedTopLeftGradientDefault = "voipgroup_orangeRedTopLeftGradientDefault";
+    public static final String key_voipgroup_orangeRedTopRightGradientDefault = "voipgroup_orangeRedTopRightGradientDefault";
+    public static final String key_voipgroup_orangeRedBottomLeftGradientDefault = "voipgroup_orangeRedBottomLeftGradientDefault";
+    public static final String key_voipgroup_orangeRedBottomRightGradientDefault = "voipgroup_orangeRedBottomRightGradientDefault";
+
+    public static final String key_voipgroup_orangeRedDarkTopLeftGradient = "voipgroup_orangeRedDarkTopLeftGradient";
+    public static final String key_voipgroup_orangeRedDarkTopRightGradient = "voipgroup_orangeRedDarkTopRightGradient";
+    public static final String key_voipgroup_orangeRedDarkBottomLeftGradient = "voipgroup_orangeRedDarkBottomLeftGradient";
+    public static final String key_voipgroup_orangeRedDarkBottomRightGradient = "voipgroup_orangeRedDarkBottomRightGradient";
+
     public static final String key_passport_authorizeBackground = "passport_authorizeBackground";
     public static final String key_passport_authorizeBackgroundSelected = "passport_authorizeBackgroundSelected";
     public static final String key_passport_authorizeText = "passport_authorizeText";
@@ -4022,7 +4092,7 @@ public class Theme {
     public final static String key_color_yellow = "color_yellow";
     public final static String key_color_purple = "color_purple";
     public final static String key_color_cyan = "color_cyan";
-    public final static String[] keys_colors = { key_color_lightblue, key_color_blue, key_color_green, key_color_lightgreen, key_color_red, key_color_orange, key_color_yellow, key_color_purple, key_color_cyan };
+    public final static String[] keys_colors = {key_color_lightblue, key_color_blue, key_color_green, key_color_lightgreen, key_color_red, key_color_orange, key_color_yellow, key_color_purple, key_color_cyan};
 
     public static final String key_chat_outReactionButtonBackground = "chat_outReactionButtonBackground";
     public static final String key_chat_inReactionButtonBackground = "chat_inReactionButtonBackground";
@@ -4850,7 +4920,7 @@ public class Theme {
         defaultColors.put(key_statisticChartNightIconColor, 0xff8E8E93);
         defaultColors.put(key_statisticChartChevronColor, 0xffD2D5D7);
         defaultColors.put(key_statisticChartHighlightColor, 0x20ececec);
-        defaultColors.put(key_statisticChartPopupBackground,0xffffffff);
+        defaultColors.put(key_statisticChartPopupBackground, 0xffffffff);
 
         defaultColors.put(key_statisticChartLine_blue, 0xff327FE5);
         defaultColors.put(key_statisticChartLine_green, 0xff61C752);
@@ -4968,6 +5038,66 @@ public class Theme {
         defaultColors.put(key_premiumGradientBottomSheet3, 0xffE794BE);
         defaultColors.put(key_topics_unreadCounter, 0xff4ecc5e);
         defaultColors.put(key_topics_unreadCounterMuted, 0xff8b8d8f);
+
+        defaultColors.put(key_voipgroup_blueVioletTopLeftGradient, 0xff2DC0F9);
+        defaultColors.put(key_voipgroup_blueVioletTopRightGradient, 0xff57A1FF);
+        defaultColors.put(key_voipgroup_blueVioletBottomLeftGradient, 0xff9258FD);
+        defaultColors.put(key_voipgroup_blueVioletBottomRightGradient, 0xffD664FF);
+
+        defaultColors.put(key_voipgroup_blueVioletTopLeftGradientDefault, 0xff20A4D7);
+        defaultColors.put(key_voipgroup_blueVioletTopRightGradientDefault, 0xff3F8BEA);
+        defaultColors.put(key_voipgroup_blueVioletBottomLeftGradientDefault, 0xff8148EC);
+        defaultColors.put(key_voipgroup_blueVioletBottomRightGradientDefault, 0xffB456D8);
+
+        defaultColors.put(key_voipgroup_blueVioletDarkTopLeftGradient, 0xff0F95C9);
+        defaultColors.put(key_voipgroup_blueVioletDarkTopRightGradient, 0xff287AE1);
+        defaultColors.put(key_voipgroup_blueVioletDarkBottomLeftGradient, 0xff6A2BDD);
+        defaultColors.put(key_voipgroup_blueVioletDarkBottomRightGradient, 0xffA736D0);
+
+        defaultColors.put(key_voipgroup_blueGreenTopLeftGradient, 0xff04DCCC);
+        defaultColors.put(key_voipgroup_blueGreenTopRightGradient, 0xff28C2FF);
+        defaultColors.put(key_voipgroup_blueGreenBottomLeftGradient, 0xff5FABFF);
+        defaultColors.put(key_voipgroup_blueGreenBottomRightGradient, 0xff558BFF);
+
+        defaultColors.put(key_voipgroup_blueGreenTopLeftGradientDefault, 0xff08B0A3);
+        defaultColors.put(key_voipgroup_blueGreenTopRightGradientDefault, 0xff17AAE4);
+        defaultColors.put(key_voipgroup_blueGreenBottomLeftGradientDefault, 0xff3B7AF1);
+        defaultColors.put(key_voipgroup_blueGreenBottomRightGradientDefault, 0xff4576E9);
+
+        defaultColors.put(key_voipgroup_blueGreenDarkTopLeftGradient, 0xff009595);
+        defaultColors.put(key_voipgroup_blueGreenDarkTopRightGradient, 0xff0291C9);
+        defaultColors.put(key_voipgroup_blueGreenDarkBottomLeftGradient, 0xff2C6ADF);
+        defaultColors.put(key_voipgroup_blueGreenDarkBottomRightGradient, 0xff2D60D6);
+
+        defaultColors.put(key_voipgroup_greenTopLeftGradient, 0xffC7EF60);
+        defaultColors.put(key_voipgroup_greenTopRightGradient, 0xff6DD957);
+        defaultColors.put(key_voipgroup_greenBottomLeftGradient, 0xff09E279);
+        defaultColors.put(key_voipgroup_greenBottomRightGradient, 0xff00D2D5);
+
+        defaultColors.put(key_voipgroup_greenTopLeftGradientDefault, 0xffA9CC66);
+        defaultColors.put(key_voipgroup_greenTopRightGradientDefault, 0xff5AB147);
+        defaultColors.put(key_voipgroup_greenBottomLeftGradientDefault, 0xff07BA63);
+        defaultColors.put(key_voipgroup_greenBottomRightGradientDefault, 0xff07A9AC);
+
+        defaultColors.put(key_voipgroup_greenDarkTopLeftGradient, 0xff8FBD37);
+        defaultColors.put(key_voipgroup_greenDarkTopRightGradient, 0xff319D27);
+        defaultColors.put(key_voipgroup_greenDarkBottomLeftGradient, 0xff01934C);
+        defaultColors.put(key_voipgroup_greenDarkBottomRightGradient, 0xff008B8E);
+
+        defaultColors.put(key_voipgroup_orangeRedTopLeftGradient, 0xffFEB055);
+        defaultColors.put(key_voipgroup_orangeRedTopRightGradient, 0xffFF8E51);
+        defaultColors.put(key_voipgroup_orangeRedBottomLeftGradient, 0xffFF82A5);
+        defaultColors.put(key_voipgroup_orangeRedBottomRightGradient, 0xffFF7866);
+
+        defaultColors.put(key_voipgroup_orangeRedTopLeftGradientDefault, 0xffDB904C);
+        defaultColors.put(key_voipgroup_orangeRedTopRightGradientDefault, 0xffDE7238);
+        defaultColors.put(key_voipgroup_orangeRedBottomLeftGradientDefault, 0xffE7618F);
+        defaultColors.put(key_voipgroup_orangeRedBottomRightGradientDefault, 0xffE86958);
+
+        defaultColors.put(key_voipgroup_orangeRedDarkTopLeftGradient, 0xffC77616);
+        defaultColors.put(key_voipgroup_orangeRedDarkTopRightGradient, 0xffD75A16);
+        defaultColors.put(key_voipgroup_orangeRedDarkBottomLeftGradient, 0xffE6306F);
+        defaultColors.put(key_voipgroup_orangeRedDarkBottomRightGradient, 0xffE23F29);
 
         fallbackKeys.put(key_chat_inAdminText, key_chat_inTimeText);
         fallbackKeys.put(key_chat_inAdminSelectedText, key_chat_inTimeSelectedText);
@@ -5317,18 +5447,18 @@ public class Theme {
         themeInfo.currentAccentId = DEFALT_THEME_ACCENT_ID;
         themeInfo.sortIndex = 1;
         themeInfo.setAccentColorOptions(
-                new int[]    { 0xFF5890C5,                     0xFF239853,                    0xFFCE5E82,                    0xFF7F63C3,                    0xFF2491AD,                    0xFF299C2F,                    0xFF8854B4,                    0xFF328ACF,                    0xFF43ACC7,                    0xFF52AC44,                    0xFFCD5F93,                    0xFFD28036,                    0xFF8366CC,                    0xFFCE4E57,                    0xFFD3AE40,                    0xFF7B88AB },
-                new int[]    { 0xFFB8E18D,                     0xFFFAFBCC,                    0xFFFFF9DC,                    0xFFC14F6E,                    0xFFD1BD1B,                    0xFFFFFAC9,                    0xFFFCF6D8,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    { 0x00000000,                     0xFFF2FBC9,                    0xFFFBF4DF, 	                         0,	                             0,                    0xFFFDEDB4,                    0xFFFCF7B6,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    { 0x00000000,                     0xFFdfe2a0,                    0xFFf1b290,                    0xFFd7c1e9,                    0xFFd7b89e,                    0xFFec9e73,                    0xFFcbb0e4,                    0xff9bbce7,                    0xff91c5ec,                    0xff9bc982,                    0xffe4a1c1,                    0xffe3ae7d,                    0xffb8aaea,                    0xffeb9c79,                    0xffd3bc74,                    0xffa0aace },
-                new int[]    { 0x00000000,                     0xFFbad89d,                    0xFFeccf94,                    0xFFe8bdd6,                    0xFFe6dec2,                    0xFFe8d085,                    0xFFebc8e9,                    0xffc0d9f3,                    0xffbfdfec,                    0xffe0dd93,                    0xffe9bed6,                    0xffecd5a2,                    0xffc5c9ee,                    0xfff0bd99,                    0xffe9df9e,                    0xffcacedd },
-                new int[]    { 0x00000000,                     0xFFe2dea7,                    0xFFe7b384,                    0xFFd2aee9,                    0xFFdac5ae,                    0xFFeea677,                    0xFFdfa8d1,                    0xff95c3eb,                    0xffb5e1d9,                    0xffbed595,                    0xffcca8e1,                    0xffdfb076,                    0xffb3b1e2,                    0xffe79db4,                    0xffe0c88b,                    0xffa6add2 },
-                new int[]    { 0x00000000,                     0xFF9ec790,                    0xFFebdea8,                    0xFFeccb88,                    0xFFe5dcbf,                    0xFFede4a9,                    0xFFedc8a8,                    0xffbbd5e8,                    0xffbfdbe8,                    0xffd1db97,                    0xffefcbd7,                    0xffecd694,                    0xffdfbeed,                    0xfff3b182,                    0xffe5d397,                    0xffcacee8 },
-                new int[]    {         99,                              9,                            10,                            11,                            12,                            13,                            14,                             0,                             1,                             2,                             3,                             4,                             5,                             6,                             7,                             8 },
-                new String[] {         "",  "p-pXcflrmFIBAAAAvXYQk-mCwZU", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "O-wmAfBPSFADAAAA4zINVfD_bro", "RepJ5uE_SVABAAAAr4d0YhgB850", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "fqv01SQemVIBAAAApND8LDRUhRU", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "lp0prF8ISFAEAAAA_p385_CvG0w", "heptcj-hSVACAAAAC9RrMzOa-cs", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "dhf9pceaQVACAAAAbzdVo4SCiZA", "Ujx2TFcJSVACAAAARJ4vLa50MkM", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "dk_wwlghOFACAAAAfz9xrxi6euw" },
-                new int[]    {          0,                            180,                            45,                             0,                            45,                           180,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
-                new int[]    {          0,                             52,                            46,                            57,                            45,                            64,                            52,                            35,                            36,                            41,                            50,                            50,                            35,                            38,                            37,                            30 }
-                );
+                new int[]{0xFF5890C5, 0xFF239853, 0xFFCE5E82, 0xFF7F63C3, 0xFF2491AD, 0xFF299C2F, 0xFF8854B4, 0xFF328ACF, 0xFF43ACC7, 0xFF52AC44, 0xFFCD5F93, 0xFFD28036, 0xFF8366CC, 0xFFCE4E57, 0xFFD3AE40, 0xFF7B88AB},
+                new int[]{0xFFB8E18D, 0xFFFAFBCC, 0xFFFFF9DC, 0xFFC14F6E, 0xFFD1BD1B, 0xFFFFFAC9, 0xFFFCF6D8, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0x00000000, 0xFFF2FBC9, 0xFFFBF4DF, 0, 0, 0xFFFDEDB4, 0xFFFCF7B6, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0x00000000, 0xFFdfe2a0, 0xFFf1b290, 0xFFd7c1e9, 0xFFd7b89e, 0xFFec9e73, 0xFFcbb0e4, 0xff9bbce7, 0xff91c5ec, 0xff9bc982, 0xffe4a1c1, 0xffe3ae7d, 0xffb8aaea, 0xffeb9c79, 0xffd3bc74, 0xffa0aace},
+                new int[]{0x00000000, 0xFFbad89d, 0xFFeccf94, 0xFFe8bdd6, 0xFFe6dec2, 0xFFe8d085, 0xFFebc8e9, 0xffc0d9f3, 0xffbfdfec, 0xffe0dd93, 0xffe9bed6, 0xffecd5a2, 0xffc5c9ee, 0xfff0bd99, 0xffe9df9e, 0xffcacedd},
+                new int[]{0x00000000, 0xFFe2dea7, 0xFFe7b384, 0xFFd2aee9, 0xFFdac5ae, 0xFFeea677, 0xFFdfa8d1, 0xff95c3eb, 0xffb5e1d9, 0xffbed595, 0xffcca8e1, 0xffdfb076, 0xffb3b1e2, 0xffe79db4, 0xffe0c88b, 0xffa6add2},
+                new int[]{0x00000000, 0xFF9ec790, 0xFFebdea8, 0xFFeccb88, 0xFFe5dcbf, 0xFFede4a9, 0xFFedc8a8, 0xffbbd5e8, 0xffbfdbe8, 0xffd1db97, 0xffefcbd7, 0xffecd694, 0xffdfbeed, 0xfff3b182, 0xffe5d397, 0xffcacee8},
+                new int[]{99, 9, 10, 11, 12, 13, 14, 0, 1, 2, 3, 4, 5, 6, 7, 8},
+                new String[]{"", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "O-wmAfBPSFADAAAA4zINVfD_bro", "RepJ5uE_SVABAAAAr4d0YhgB850", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "fqv01SQemVIBAAAApND8LDRUhRU", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "lp0prF8ISFAEAAAA_p385_CvG0w", "heptcj-hSVACAAAAC9RrMzOa-cs", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "dhf9pceaQVACAAAAbzdVo4SCiZA", "Ujx2TFcJSVACAAAARJ4vLa50MkM", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "dk_wwlghOFACAAAAfz9xrxi6euw"},
+                new int[]{0, 180, 45, 0, 45, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 52, 46, 57, 45, 64, 52, 35, 36, 41, 50, 50, 35, 38, 37, 30}
+        );
         sortAccents(themeInfo);
         themes.add(currentDayTheme = currentTheme = defaultTheme = themeInfo);
         themesDict.put("Blue", themeInfo);
@@ -5341,18 +5471,18 @@ public class Theme {
         themeInfo.previewOutColor = 0xff82a8e3;
         themeInfo.sortIndex = 3;
         themeInfo.setAccentColorOptions(
-                new int[]    {                    0xFF927BD4,                    0xFF698AFB,                    0xFF23A7F0,                    0xFF7B71D1,                    0xFF69B955,                    0xFF2990EA,                    0xFF7082E9,                    0xFF66BAED,                    0xff3685fa,                    0xff46c8ed,                    0xff64AC5F,                    0xffeb7cb1,                    0xffee902a,                    0xffa281f0,                    0xffd34324,                    0xffeebd34,                    0xff7f8fab,                    0xff3581e3 },
-                new int[]    {                    0xFF9D5C99,                    0xFF635545,                    0xFF31818B,                    0xFFAD6426,                    0xFF4A7034,                    0xFF335D82,                    0xFF36576F,                    0xFF597563,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFF604DA8,                    0xFF685D4C,                    0xFF1B6080,                    0xFF99354E,                    0xFF275D3B,                    0xFF317A98,                    0xFF376E87,                    0xFF5E7370,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFF271e2e,                    0xFF171a22,                    0xFF071e1f,                    0xFF100f13,                    0xFF0e1811,                    0xFF0b131c,                    0xFF1d2129,                    0xFF202c2a,                    0xff0e141a,                    0xff162325,                    0xff161d15,                    0xff24191e,                    0xff251b13,                    0xff1f1d29,                    0xff22160e,                    0xff272115,                    0xff171a1b,                    0xff0e141a },
-                new int[]    {                    0xFF110e13,                    0xFF26262e,                    0xFF141d26,                    0xFF221a27,                    0xFF1f2818,                    0xFF192330,                    0xFF12161a,                    0xFF141a1e,                    0xff172431,                    0xff0e1718,                    0xff172719,                    0xff23171c,                    0xff201408,                    0xff14131c,                    0xff2d1d16,                    0xff1a160d,                    0xff212328,                    0xff172431 },
-                new int[]    {                    0xFF2b1e2b,                    0xFF15151b,                    0xFF0c151a,                    0xFF0e0f13,                    0xFF0b170f,                    0xFF131822,                    0xFF17242d,                    0xFF16202b,                    0xff0f171e,                    0xff1e2e2e,                    0xff141e14,                    0xff2b1929,                    0xff2e1f15,                    0xff292331,                    0xff23140c,                    0xff292414,                    0xff181a1d,                    0xff0f171e },
-                new int[]    {                    0xFF161227,                    0xFF1a1916,                    0xFF0d272c,                    0xFF271d29,                    0xFF171d19,                    0xFF172331,                    0xFF111521,                    0xFF051717,                    0xff141c2b,                    0xff121f1f,                    0xff1c261a,                    0xff1f141d,                    0xff1b130a,                    0xff17131b,                    0xff2d1924,                    0xff1e170e,                    0xff212228,                    0xff141c2b },
-                new int[]    {                            11,                            12,                            13,                            14,                            15,                            16,                            17,                            18,                             0,                             1,                             2,                             3,                             4,                             5,                             6,                             7,                             8,                             9 },
-                new String[] { "O-wmAfBPSFADAAAA4zINVfD_bro", "RepJ5uE_SVABAAAAr4d0YhgB850", "dk_wwlghOFACAAAAfz9xrxi6euw", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "kO4jyq55SFABAAAA0WEpcLfahXk", "CJNyxPMgSVAEAAAAvW9sMwc51cw", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "CJNyxPMgSVAEAAAAvW9sMwc51cw", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "9GcNVISdSVADAAAAUcw5BYjELW4", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "9ShF73d1MFIIAAAAjWnm8_ZMe8Q", "3rX-PaKbSFACAAAAEiHNvcEm6X4", "dk_wwlghOFACAAAAfz9xrxi6euw", "fqv01SQemVIBAAAApND8LDRUhRU" },
-                new int[]    {                           225,                            45,                           225,                           135,                            45,                           225,                            45,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
-                new int[]    {                            40,                            40,                            31,                            50,                            25,                            34,                            35,                            35,                            38,                            29,                            24,                            34,                            34,                            31,                            29,                            37,                            21,                            38 }
-                );
+                new int[]{0xFF927BD4, 0xFF698AFB, 0xFF23A7F0, 0xFF7B71D1, 0xFF69B955, 0xFF2990EA, 0xFF7082E9, 0xFF66BAED, 0xff3685fa, 0xff46c8ed, 0xff64AC5F, 0xffeb7cb1, 0xffee902a, 0xffa281f0, 0xffd34324, 0xffeebd34, 0xff7f8fab, 0xff3581e3},
+                new int[]{0xFF9D5C99, 0xFF635545, 0xFF31818B, 0xFFAD6426, 0xFF4A7034, 0xFF335D82, 0xFF36576F, 0xFF597563, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF604DA8, 0xFF685D4C, 0xFF1B6080, 0xFF99354E, 0xFF275D3B, 0xFF317A98, 0xFF376E87, 0xFF5E7370, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF271e2e, 0xFF171a22, 0xFF071e1f, 0xFF100f13, 0xFF0e1811, 0xFF0b131c, 0xFF1d2129, 0xFF202c2a, 0xff0e141a, 0xff162325, 0xff161d15, 0xff24191e, 0xff251b13, 0xff1f1d29, 0xff22160e, 0xff272115, 0xff171a1b, 0xff0e141a},
+                new int[]{0xFF110e13, 0xFF26262e, 0xFF141d26, 0xFF221a27, 0xFF1f2818, 0xFF192330, 0xFF12161a, 0xFF141a1e, 0xff172431, 0xff0e1718, 0xff172719, 0xff23171c, 0xff201408, 0xff14131c, 0xff2d1d16, 0xff1a160d, 0xff212328, 0xff172431},
+                new int[]{0xFF2b1e2b, 0xFF15151b, 0xFF0c151a, 0xFF0e0f13, 0xFF0b170f, 0xFF131822, 0xFF17242d, 0xFF16202b, 0xff0f171e, 0xff1e2e2e, 0xff141e14, 0xff2b1929, 0xff2e1f15, 0xff292331, 0xff23140c, 0xff292414, 0xff181a1d, 0xff0f171e},
+                new int[]{0xFF161227, 0xFF1a1916, 0xFF0d272c, 0xFF271d29, 0xFF171d19, 0xFF172331, 0xFF111521, 0xFF051717, 0xff141c2b, 0xff121f1f, 0xff1c261a, 0xff1f141d, 0xff1b130a, 0xff17131b, 0xff2d1924, 0xff1e170e, 0xff212228, 0xff141c2b},
+                new int[]{11, 12, 13, 14, 15, 16, 17, 18, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+                new String[]{"O-wmAfBPSFADAAAA4zINVfD_bro", "RepJ5uE_SVABAAAAr4d0YhgB850", "dk_wwlghOFACAAAAfz9xrxi6euw", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "kO4jyq55SFABAAAA0WEpcLfahXk", "CJNyxPMgSVAEAAAAvW9sMwc51cw", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "CJNyxPMgSVAEAAAAvW9sMwc51cw", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "9GcNVISdSVADAAAAUcw5BYjELW4", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "9ShF73d1MFIIAAAAjWnm8_ZMe8Q", "3rX-PaKbSFACAAAAEiHNvcEm6X4", "dk_wwlghOFACAAAAfz9xrxi6euw", "fqv01SQemVIBAAAApND8LDRUhRU"},
+                new int[]{225, 45, 225, 135, 45, 225, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{40, 40, 31, 50, 25, 34, 35, 35, 38, 29, 24, 34, 34, 31, 29, 37, 21, 38}
+        );
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Dark Blue", currentNightTheme = themeInfo);
@@ -5365,18 +5495,18 @@ public class Theme {
         themeInfo.previewOutColor = 0xff6ca1eb;
         themeInfo.sortIndex = 5;
         themeInfo.setAccentColorOptions(
-                new int[]    {                    0xFF40B1E2,                    0xFF41B05D,                    0xFFCE8C20,                    0xFF57A3EB,                    0xFFDE8534,                    0xFFCC6189,                    0xFF3490EB,                    0xFF43ACC7,                    0xFF52AC44,                    0xFFCD5F93,                    0xFFD28036,                    0xFF8366CC,                    0xFFCE4E57,                    0xFFD3AE40,                    0xFF7B88AB },
-                new int[]    {                    0xFF319FCA,                    0xFF28A359,                    0xFF8C5A3F,                    0xFF3085D3,                    0xFFC95870,                    0xFF7871CD,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFF4EBEE2,                    0xFF6BBC59,                    0xFF9E563C,                    0xFF48C2D8,                    0xFFD87047,                    0xFFBE6EAF,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFFc5e2f0,                    0xFFdadea9,                    0xFFd6c9a5,                    0xFFe3f3f3,                    0xFFeee5b0,                    0xFFe5dfec,                    0xffe0e7ed,                    0xffbfe0eb,                    0xffc2e0af,                    0xffefd9e4,                    0xfff1dfbd,                    0xffe1dbec,                    0xffedd8d8,                    0xffebe1cd,                    0xffdcdee5 },
-                new int[]    {                    0xFFe8f4f3,                    0xFFbce3ac,                    0xFFe6dbaf,                    0xFFc8e6ee,                    0xFFeebeaa,                    0xFFe1c6ec,                    0xffbed7f3,                    0xffbfe0eb,                    0xffcbe19a,                    0xffecc6d9,                    0xffe8c79b,                    0xffbdc1ec,                    0xffeecac0,                    0xffebe2b5,                    0xffc3cadf },
-                new int[]    {                    0xFFb4daf0,                    0xFFcde7a9,                    0xFFe8c091,                    0xFFd9eff3,                    0xFFeecf92,                    0xFFf6eaf6,                    0xffe0e8f3,                    0xffcaebec,                    0xffb8de89,                    0xfff1d8e6,                    0xfff3d7a6,                    0xffd6d8f5,                    0xffedddcd,                    0xffebdcc9,                    0xffe7edf1 },
-                new int[]    {                    0xFFcff0ef,                    0xFFa8cf9b,                    0xFFe1d09f,                    0xFFb4d6e8,                    0xFFeeaf87,                    0xFFe5c5cf,                    0xffc8dbf3,                    0xffaedceb,                    0xffcee5a2,                    0xfff0c0d9,                    0xffdfb48e,                    0xffbdbaf2,                    0xfff1c9bb,                    0xffe7d7ae,                    0xffc5c6da },
-                new int[]    {                             9,                            10,                            11,                            12,                            13,                            14,                             0,                             1,                             2,                             3,                             4,                             5,                             6,                             7,                             8 },
-                new String[] { "MIo6r0qGSFAFAAAAtL8TsDzNX60", "dhf9pceaQVACAAAAbzdVo4SCiZA", "fqv01SQemVIBAAAApND8LDRUhRU", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "pgJfpFNRSFABAAAACDT8s5sEjfc", "ptuUd96JSFACAAAATobI23sPpz0", "dhf9pceaQVACAAAAbzdVo4SCiZA", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "9iklpvIPQVABAAAAORQXKur_Eyc", "F5oWoCs7QFACAAAAgf2bD_mg8Bw" },
-                new int[]    {                           315,                           315,                           225,                           315,                             0,                           180,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
-                new int[]    {                            50,                            50,                            58,                            47,                            46,                            50,                            49,                            46,                            51,                            50,                            49,                            34,                            54,                            50,                            40 }
-                );
+                new int[]{0xFF40B1E2, 0xFF41B05D, 0xFFCE8C20, 0xFF57A3EB, 0xFFDE8534, 0xFFCC6189, 0xFF3490EB, 0xFF43ACC7, 0xFF52AC44, 0xFFCD5F93, 0xFFD28036, 0xFF8366CC, 0xFFCE4E57, 0xFFD3AE40, 0xFF7B88AB},
+                new int[]{0xFF319FCA, 0xFF28A359, 0xFF8C5A3F, 0xFF3085D3, 0xFFC95870, 0xFF7871CD, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF4EBEE2, 0xFF6BBC59, 0xFF9E563C, 0xFF48C2D8, 0xFFD87047, 0xFFBE6EAF, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFFc5e2f0, 0xFFdadea9, 0xFFd6c9a5, 0xFFe3f3f3, 0xFFeee5b0, 0xFFe5dfec, 0xffe0e7ed, 0xffbfe0eb, 0xffc2e0af, 0xffefd9e4, 0xfff1dfbd, 0xffe1dbec, 0xffedd8d8, 0xffebe1cd, 0xffdcdee5},
+                new int[]{0xFFe8f4f3, 0xFFbce3ac, 0xFFe6dbaf, 0xFFc8e6ee, 0xFFeebeaa, 0xFFe1c6ec, 0xffbed7f3, 0xffbfe0eb, 0xffcbe19a, 0xffecc6d9, 0xffe8c79b, 0xffbdc1ec, 0xffeecac0, 0xffebe2b5, 0xffc3cadf},
+                new int[]{0xFFb4daf0, 0xFFcde7a9, 0xFFe8c091, 0xFFd9eff3, 0xFFeecf92, 0xFFf6eaf6, 0xffe0e8f3, 0xffcaebec, 0xffb8de89, 0xfff1d8e6, 0xfff3d7a6, 0xffd6d8f5, 0xffedddcd, 0xffebdcc9, 0xffe7edf1},
+                new int[]{0xFFcff0ef, 0xFFa8cf9b, 0xFFe1d09f, 0xFFb4d6e8, 0xFFeeaf87, 0xFFe5c5cf, 0xffc8dbf3, 0xffaedceb, 0xffcee5a2, 0xfff0c0d9, 0xffdfb48e, 0xffbdbaf2, 0xfff1c9bb, 0xffe7d7ae, 0xffc5c6da},
+                new int[]{9, 10, 11, 12, 13, 14, 0, 1, 2, 3, 4, 5, 6, 7, 8},
+                new String[]{"MIo6r0qGSFAFAAAAtL8TsDzNX60", "dhf9pceaQVACAAAAbzdVo4SCiZA", "fqv01SQemVIBAAAApND8LDRUhRU", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "fqv01SQemVIBAAAApND8LDRUhRU", "RepJ5uE_SVABAAAAr4d0YhgB850", "PllZ-bf_SFAEAAAA8crRfwZiDNg", "pgJfpFNRSFABAAAACDT8s5sEjfc", "ptuUd96JSFACAAAATobI23sPpz0", "dhf9pceaQVACAAAAbzdVo4SCiZA", "JqSUrO0-mFIBAAAAWwTvLzoWGQI", "9iklpvIPQVABAAAAORQXKur_Eyc", "F5oWoCs7QFACAAAAgf2bD_mg8Bw"},
+                new int[]{315, 315, 225, 315, 0, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{50, 50, 58, 47, 46, 50, 49, 46, 51, 50, 49, 34, 54, 50, 40}
+        );
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Arctic Blue", themeInfo);
@@ -5389,18 +5519,18 @@ public class Theme {
         themeInfo.previewOutColor = 0xff7cb2fe;
         themeInfo.sortIndex = 2;
         themeInfo.setAccentColorOptions(
-                new int[]    { 0xFF56A2C9, 0xFFCC6E83, 0xFFD08E47, 0xFFCC6462, 0xFF867CD2, 0xFF4C91DF, 0xFF57B4D9, 0xFF54B169, 0xFFD9BF3F, 0xFFCC6462, 0xFFCC6E83, 0xFF9B7BD2, 0xFFD79144, 0xFF7B88AB },
-                new int[]    { 0xFF6580DC, 0xFF6C6DD2, 0xFFCB5481, 0xFFC34A4A, 0xFF5C8EDF, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
-                new int[]    { 0xFF3EC1D6, 0xFFC86994, 0xFFDBA12F, 0xFFD08E3B, 0xFF51B5CB, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
-                new int[]    { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
-                new int[]    { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+                new int[]{0xFF56A2C9, 0xFFCC6E83, 0xFFD08E47, 0xFFCC6462, 0xFF867CD2, 0xFF4C91DF, 0xFF57B4D9, 0xFF54B169, 0xFFD9BF3F, 0xFFCC6462, 0xFFCC6E83, 0xFF9B7BD2, 0xFFD79144, 0xFF7B88AB},
+                new int[]{0xFF6580DC, 0xFF6C6DD2, 0xFFCB5481, 0xFFC34A4A, 0xFF5C8EDF, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF3EC1D6, 0xFFC86994, 0xFFDBA12F, 0xFFD08E3B, 0xFF51B5CB, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
                 null,
                 null,
-                new int[]    {          9,         10,         11,         12,         13,          0,          1,          2,          3,          4,          5,          6,          7,          8 },
-                new String[] {         "",         "",         "",         "",         "",         "",         "",         "",         "",         "",         "",         "",         "",         "" },
-                new int[]    {          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0 },
-                new int[]    {          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0 }
-                );
+                new int[]{9, 10, 11, 12, 13, 0, 1, 2, 3, 4, 5, 6, 7, 8},
+                new String[]{"", "", "", "", "", "", "", "", "", "", "", "", "", ""},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        );
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Day", themeInfo);
@@ -5413,18 +5543,18 @@ public class Theme {
         themeInfo.previewOutColor = 0xff75A2E6;
         themeInfo.sortIndex = 4;
         themeInfo.setAccentColorOptions(
-                new int[]    {                    0xFF6ABE3F,                    0xFF8D78E3,                    0xFFDE5E7E,                    0xFF5977E8,                    0xFFDBC11A,                    0xff3e88f7,                    0xff4ab5d3,                    0xff4ab841,                    0xffd95576,                    0xffe27d2b,                    0xff936cda,                    0xffd04336,                    0xffe8ae1c,                    0xff7988a3 },
-                new int[]    {                    0xFF8A5294,                    0xFFB46C1B,                    0xFFAF4F6F,                    0xFF266E8D,                    0xFF744EB7,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFF6855BB,                    0xFFA53B4A,                    0xFF62499C,                    0xFF2F919D,                    0xFF298B95,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000,                    0x00000000 },
-                new int[]    {                    0xFF16131c,                    0xFF1e1118,                    0xFF0f0b10,                    0xFF090c0c,                    0xFF071519,                    0xff0d0e17,                    0xff111b1c,                    0xff0c110c,                    0xff0e0b0d,                    0xff1d160f,                    0xff09090a,                    0xff1c1210,                    0xff1d1b18,                    0xff0e1012 },
-                new int[]    {                    0xFF201827,                    0xFF100f13,                    0xFF1b151a,                    0xFF141f22,                    0xFF0c0c0f,                    0xff090a0c,                    0xff0a0e0e,                    0xff080908,                    0xff1a1618,                    0xff13100d,                    0xff1e1a21,                    0xff0f0d0c,                    0xff0c0b08,                    0xff070707 },
-                new int[]    {                    0xFF0e0b13,                    0xFF211623,                    0xFF130e12,                    0xFF0d0f11,                    0xFF10191f,                    0xff181c28,                    0xff142121,                    0xff121812,                    0xff130e11,                    0xff1a130f,                    0xff0b0a0b,                    0xff120d0b,                    0xff15140f,                    0xff101214 },
-                new int[]    {                    0xFF1e192a,                    0xFF111016,                    0xFF21141a,                    0xFF111a1b,                    0xFF0a0d13,                    0xff0e0f12,                    0xff070c0b,                    0xff0b0d0b,                    0xff22121e,                    0xff0f0c0c,                    0xff110f17,                    0xff070606,                    0xff0c0a0a,                    0xff09090b },
-                new int[]    {                             9,                            10,                            11,                            12,                            13,                             0,                             1,                             2,                             3,                             4,                             5,                             6,                             7,                             8 },
-                new String[] { "YIxYGEALQVADAAAAA3QbEH0AowY", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "O-wmAfBPSFADAAAA4zINVfD_bro", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "fqv01SQemVIBAAAApND8LDRUhRU", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "ptuUd96JSFACAAAATobI23sPpz0", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "Nl8Pg2rBQVACAAAA25Lxtb8SDp0", "dhf9pceaQVACAAAAbzdVo4SCiZA", "9GcNVISdSVADAAAAUcw5BYjELW4", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "dk_wwlghOFACAAAAfz9xrxi6euw" },
-                new int[]    {                            45,                           135,                             0,                           180,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
-                new int[]    {                            34,                            47,                            52,                            48,                            54,                            50,                            37,                            56,                            48,                            49,                            40,                            64,                            38,                            48 }
-                );
+                new int[]{0xFF6ABE3F, 0xFF8D78E3, 0xFFDE5E7E, 0xFF5977E8, 0xFFDBC11A, 0xff3e88f7, 0xff4ab5d3, 0xff4ab841, 0xffd95576, 0xffe27d2b, 0xff936cda, 0xffd04336, 0xffe8ae1c, 0xff7988a3},
+                new int[]{0xFF8A5294, 0xFFB46C1B, 0xFFAF4F6F, 0xFF266E8D, 0xFF744EB7, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF6855BB, 0xFFA53B4A, 0xFF62499C, 0xFF2F919D, 0xFF298B95, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                new int[]{0xFF16131c, 0xFF1e1118, 0xFF0f0b10, 0xFF090c0c, 0xFF071519, 0xff0d0e17, 0xff111b1c, 0xff0c110c, 0xff0e0b0d, 0xff1d160f, 0xff09090a, 0xff1c1210, 0xff1d1b18, 0xff0e1012},
+                new int[]{0xFF201827, 0xFF100f13, 0xFF1b151a, 0xFF141f22, 0xFF0c0c0f, 0xff090a0c, 0xff0a0e0e, 0xff080908, 0xff1a1618, 0xff13100d, 0xff1e1a21, 0xff0f0d0c, 0xff0c0b08, 0xff070707},
+                new int[]{0xFF0e0b13, 0xFF211623, 0xFF130e12, 0xFF0d0f11, 0xFF10191f, 0xff181c28, 0xff142121, 0xff121812, 0xff130e11, 0xff1a130f, 0xff0b0a0b, 0xff120d0b, 0xff15140f, 0xff101214},
+                new int[]{0xFF1e192a, 0xFF111016, 0xFF21141a, 0xFF111a1b, 0xFF0a0d13, 0xff0e0f12, 0xff070c0b, 0xff0b0d0b, 0xff22121e, 0xff0f0c0c, 0xff110f17, 0xff070606, 0xff0c0a0a, 0xff09090b},
+                new int[]{9, 10, 11, 12, 13, 0, 1, 2, 3, 4, 5, 6, 7, 8},
+                new String[]{"YIxYGEALQVADAAAAA3QbEH0AowY", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "O-wmAfBPSFADAAAA4zINVfD_bro", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "-Xc-np9y2VMCAAAARKr0yNNPYW0", "fqv01SQemVIBAAAApND8LDRUhRU", "F5oWoCs7QFACAAAAgf2bD_mg8Bw", "ptuUd96JSFACAAAATobI23sPpz0", "p-pXcflrmFIBAAAAvXYQk-mCwZU", "Nl8Pg2rBQVACAAAA25Lxtb8SDp0", "dhf9pceaQVACAAAAbzdVo4SCiZA", "9GcNVISdSVADAAAAUcw5BYjELW4", "9LW_RcoOSVACAAAAFTk3DTyXN-M", "dk_wwlghOFACAAAAfz9xrxi6euw"},
+                new int[]{45, 135, 0, 180, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{34, 47, 52, 48, 54, 50, 37, 56, 48, 49, 40, 64, 38, 48}
+        );
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Night", themeInfo);
@@ -6262,12 +6392,12 @@ public class Theme {
             if ((maskType == RIPPLE_MASK_CIRCLE_20DP || maskType == 5) && Build.VERSION.SDK_INT >= 23) {
                 maskDrawable = null;
             } else if (
-                maskType == RIPPLE_MASK_CIRCLE_20DP ||
-                maskType == RIPPLE_MASK_CIRCLE_TO_BOUND_EDGE ||
-                maskType == RIPPLE_MASK_CIRCLE_TO_BOUND_CORNER ||
-                maskType == RIPPLE_MASK_CIRCLE_AUTO ||
-                maskType == 6 ||
-                maskType == RIPPLE_MASK_ROUNDRECT_6DP
+                    maskType == RIPPLE_MASK_CIRCLE_20DP ||
+                            maskType == RIPPLE_MASK_CIRCLE_TO_BOUND_EDGE ||
+                            maskType == RIPPLE_MASK_CIRCLE_TO_BOUND_CORNER ||
+                            maskType == RIPPLE_MASK_CIRCLE_AUTO ||
+                            maskType == 6 ||
+                            maskType == RIPPLE_MASK_ROUNDRECT_6DP
             ) {
                 maskPaint.setColor(0xffffffff);
                 maskDrawable = new Drawable() {
@@ -6318,8 +6448,8 @@ public class Theme {
                 maskDrawable = new ColorDrawable(0xffffffff);
             }
             ColorStateList colorStateList = new ColorStateList(
-                new int[][]{ StateSet.WILD_CARD },
-                new int[]{ color }
+                    new int[][]{StateSet.WILD_CARD},
+                    new int[]{color}
             );
             RippleDrawable rippleDrawable = new RippleDrawable(colorStateList, null, maskDrawable);
             if (Build.VERSION.SDK_INT >= 23) {
@@ -6381,32 +6511,32 @@ public class Theme {
     /**
      * AdaptiveRipple implements methods for creating ripple drawables
      * Ripple color is based on background color, shifting saturation and value
-     *
+     * <p>
      * There are four public static methods:
-     *  circle(String|int backgroundColor?, float radius?)
-     *      - creates ripple drawable for circle buttons, draws only ripples
-     *        radius (by default) can be RADIUS_TO_BOUNDS (-1): will be calculated to touch bounds edges
-     *        radius can be RADIUS_OUT_BOUNDS (-2): will be calculated to touch bounds corners (fill entire bounds)
-     *        otherwise radius is described in dp
-     *  filledCircle(String|Drawable|int background?, String|int backgroundColor?, float radius?)
-     *      - creates ripple drawable for circle buttons, draws ripples and background
-     *        (!) it's not recommended to use only drawable background, as it would be impossible to get background color
-     *          (there would be an attempt to cast drawable to ColorDrawable to retrieve a color)
-     *  rect(String|int backgroundColor?, ...float radii?)
-     *      - creates ripple drawable for rectangular buttons, draws only ripples
-     *        radii array is allowed to have 0, 1, 2, 3, 4, 8 elements:
-     *        0 - no rounding
-     *        1 - all roundings
-     *        2 - top, bottom roundings
-     *        3 - top-left, top-right, bottom roundings
-     *        4 - top-left, top-right, bottom-right, bottom-left roundings
-     *        8 - top-left-x, top-left-y, top-right-x, top-right-y,
-     *            bottom-right-x, bottom-right-y, bottom-left-x, bottom-left-y roundings
-     *        in case it has more, would be downgraded to nearest (ex.: 5 -> 4, 10 -> 8)
-     *   filledRect(String|Drawable|int background?, String|int backgroundColor?, ...float radii?)
-     *      - creates ripple drawable for rectangular buttons, draws ripples and background
-     *
-     *  by default, backgroundColor is getColor(Theme.key_windowBackgroundWhite)
+     * circle(String|int backgroundColor?, float radius?)
+     * - creates ripple drawable for circle buttons, draws only ripples
+     * radius (by default) can be RADIUS_TO_BOUNDS (-1): will be calculated to touch bounds edges
+     * radius can be RADIUS_OUT_BOUNDS (-2): will be calculated to touch bounds corners (fill entire bounds)
+     * otherwise radius is described in dp
+     * filledCircle(String|Drawable|int background?, String|int backgroundColor?, float radius?)
+     * - creates ripple drawable for circle buttons, draws ripples and background
+     * (!) it's not recommended to use only drawable background, as it would be impossible to get background color
+     * (there would be an attempt to cast drawable to ColorDrawable to retrieve a color)
+     * rect(String|int backgroundColor?, ...float radii?)
+     * - creates ripple drawable for rectangular buttons, draws only ripples
+     * radii array is allowed to have 0, 1, 2, 3, 4, 8 elements:
+     * 0 - no rounding
+     * 1 - all roundings
+     * 2 - top, bottom roundings
+     * 3 - top-left, top-right, bottom roundings
+     * 4 - top-left, top-right, bottom-right, bottom-left roundings
+     * 8 - top-left-x, top-left-y, top-right-x, top-right-y,
+     * bottom-right-x, bottom-right-y, bottom-left-x, bottom-left-y roundings
+     * in case it has more, would be downgraded to nearest (ex.: 5 -> 4, 10 -> 8)
+     * filledRect(String|Drawable|int background?, String|int backgroundColor?, ...float radii?)
+     * - creates ripple drawable for rectangular buttons, draws ripples and background
+     * <p>
+     * by default, backgroundColor is getColor(Theme.key_windowBackgroundWhite)
      */
     public static class AdaptiveRipple {
 
@@ -6418,15 +6548,19 @@ public class Theme {
         public static Drawable circle() {
             return circle(Theme.getColor(defaultBackgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable circle(String backgroundColorKey) {
             return circle(Theme.getColor(backgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable circle(String backgroundColorKey, float radius) {
             return circle(Theme.getColor(backgroundColorKey), radius);
         }
+
         public static Drawable circle(int backgroundColor) {
             return circle(backgroundColor, RADIUS_TO_BOUNDS);
         }
+
         public static Drawable circle(int backgroundColor, float radius) {
             return createCircle(calcRippleColor(backgroundColor), radius);
         }
@@ -6434,27 +6568,35 @@ public class Theme {
         public static Drawable filledCircle() {
             return filledCircle(null, Theme.getColor(defaultBackgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable filledCircle(Drawable background) {
             return filledCircle(background, Theme.getColor(defaultBackgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable filledCircle(String backgroundColorKey) {
             return filledCircle(null, Theme.getColor(backgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable filledCircle(Drawable background, String backgroundColorKey) {
             return filledCircle(background, Theme.getColor(backgroundColorKey), RADIUS_TO_BOUNDS);
         }
+
         public static Drawable filledCircle(String backgroundColorKey, float radius) {
             return filledCircle(null, Theme.getColor(backgroundColorKey), radius);
         }
+
         public static Drawable filledCircle(Drawable background, String backgroundColorKey, float radius) {
             return filledCircle(background, Theme.getColor(backgroundColorKey), radius);
         }
+
         public static Drawable filledCircle(int backgroundColor) {
             return filledCircle(null, backgroundColor, RADIUS_TO_BOUNDS);
         }
+
         public static Drawable filledCircle(int backgroundColor, float radius) {
             return filledCircle(null, backgroundColor, radius);
         }
+
         public static Drawable filledCircle(Drawable background, int backgroundColor, float radius) {
             return createCircle(background, calcRippleColor(backgroundColor), radius);
         }
@@ -6462,52 +6604,65 @@ public class Theme {
         public static Drawable rect() {
             return rect(Theme.getColor(defaultBackgroundColorKey));
         }
+
         public static Drawable rect(String backgroundColorKey) {
             return rect(Theme.getColor(backgroundColorKey));
         }
-        public static Drawable rect(String backgroundColorKey, float ...radii) {
+
+        public static Drawable rect(String backgroundColorKey, float... radii) {
             return rect(Theme.getColor(backgroundColorKey), radii);
         }
+
         public static Drawable rect(int backgroundColor) {
             return rect(backgroundColor, 0);
         }
-        public static Drawable rect(int backgroundColor, float ...radii) {
+
+        public static Drawable rect(int backgroundColor, float... radii) {
             return createRect(0, calcRippleColor(backgroundColor), radii);
         }
 
         public static Drawable filledRect() {
             return filledRect(Theme.getColor(defaultBackgroundColorKey), 0);
         }
+
         public static Drawable filledRect(Drawable background) {
             int backgroundColor = background instanceof ColorDrawable ? ((ColorDrawable) background).getColor() : Theme.getColor(defaultBackgroundColorKey);
             return filledRect(background, backgroundColor, 0);
         }
+
         public static Drawable filledRect(String backgroundColorKey) {
             return filledRect(Theme.getColor(backgroundColorKey));
         }
+
         public static Drawable filledRect(Drawable background, String backgroundColorKey) {
             return filledRect(background, Theme.getColor(backgroundColorKey));
         }
-        public static Drawable filledRect(String backgroundColorKey, float ...radii) {
+
+        public static Drawable filledRect(String backgroundColorKey, float... radii) {
             return filledRect(Theme.getColor(backgroundColorKey), radii);
         }
-        public static Drawable filledRect(Drawable background, String backgroundColorKey, float ...radii) {
+
+        public static Drawable filledRect(Drawable background, String backgroundColorKey, float... radii) {
             return filledRect(background, Theme.getColor(backgroundColorKey), radii);
         }
+
         public static Drawable filledRect(int backgroundColor) {
             return createRect(backgroundColor, calcRippleColor(backgroundColor));
         }
-        public static Drawable filledRect(int backgroundColor, float ...radii) {
+
+        public static Drawable filledRect(int backgroundColor, float... radii) {
             return createRect(backgroundColor, calcRippleColor(backgroundColor), radii);
         }
-        public static Drawable filledRect(Drawable background, int backgroundColor, float ...radii) {
+
+        public static Drawable filledRect(Drawable background, int backgroundColor, float... radii) {
             return createRect(background, calcRippleColor(backgroundColor), radii);
         }
 
-        public static Drawable createRect(int rippleColor, float ...radii) {
+        public static Drawable createRect(int rippleColor, float... radii) {
             return createRect(0, rippleColor, radii);
         }
-        public static Drawable createRect(int backgroundColor, int rippleColor, float ...radii) {
+
+        public static Drawable createRect(int backgroundColor, int rippleColor, float... radii) {
             Drawable background = null;
             if (backgroundColor != 0) {
                 if (hasNonzeroRadii(radii)) {
@@ -6518,12 +6673,13 @@ public class Theme {
                 }
             }
             return createRect(
-                background,
-                rippleColor,
-                radii
+                    background,
+                    rippleColor,
+                    radii
             );
         }
-        private static Drawable createRect(Drawable background, int rippleColor, float ...radii) {
+
+        private static Drawable createRect(Drawable background, int rippleColor, float... radii) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Drawable maskDrawable = null;
                 if (hasNonzeroRadii(radii)) {
@@ -6534,12 +6690,12 @@ public class Theme {
                     ((ShapeDrawable) maskDrawable).getPaint().setColor(0xffffffff);
                 }
                 return new RippleDrawable(
-                    new ColorStateList(
-                        new int[][]{ StateSet.WILD_CARD },
-                        new int[]{ rippleColor }
-                    ),
-                    background,
-                    maskDrawable
+                        new ColorStateList(
+                                new int[][]{StateSet.WILD_CARD},
+                                new int[]{rippleColor}
+                        ),
+                        background,
+                        maskDrawable
                 );
             } else {
                 StateListDrawable stateListDrawable = new StateListDrawable();
@@ -6551,7 +6707,7 @@ public class Theme {
                     ripple = new ShapeDrawable(new RectShape());
                     ((ShapeDrawable) ripple).getPaint().setColor(rippleColor);
                 }
-                Drawable pressed = new LayerDrawable(new Drawable[] { background, ripple });
+                Drawable pressed = new LayerDrawable(new Drawable[]{background, ripple});
                 stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressed);
                 stateListDrawable.addState(new int[]{android.R.attr.state_selected}, pressed);
                 stateListDrawable.addState(StateSet.WILD_CARD, background);
@@ -6562,30 +6718,33 @@ public class Theme {
         private static Drawable createCircle(int rippleColor) {
             return createCircle(0, rippleColor, RADIUS_TO_BOUNDS);
         }
+
         private static Drawable createCircle(int rippleColor, float radius) {
             return createCircle(0, rippleColor, radius);
         }
+
         private static Drawable createCircle(int backgroundColor, int rippleColor, float radius) {
             return createCircle(
-                backgroundColor == 0 ? null : new CircleDrawable(radius, backgroundColor),
-                rippleColor,
-                radius
+                    backgroundColor == 0 ? null : new CircleDrawable(radius, backgroundColor),
+                    rippleColor,
+                    radius
             );
         }
+
         private static Drawable createCircle(Drawable background, int rippleColor, float radius) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 return new RippleDrawable(
-                    new ColorStateList(
-                        new int[][]{ StateSet.WILD_CARD },
-                        new int[]{ rippleColor }
-                    ),
-                    background,
-                    new CircleDrawable(radius)
+                        new ColorStateList(
+                                new int[][]{StateSet.WILD_CARD},
+                                new int[]{rippleColor}
+                        ),
+                        background,
+                        new CircleDrawable(radius)
                 );
             } else {
                 StateListDrawable stateListDrawable = new StateListDrawable();
                 Drawable ripple = new CircleDrawable(radius, rippleColor);
-                Drawable pressed = new LayerDrawable(new Drawable[] { background, ripple });
+                Drawable pressed = new LayerDrawable(new Drawable[]{background, ripple});
                 stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressed);
                 stateListDrawable.addState(new int[]{android.R.attr.state_selected}, pressed);
                 stateListDrawable.addState(StateSet.WILD_CARD, background);
@@ -6629,31 +6788,37 @@ public class Theme {
             }
 
             @Override
-            public void setAlpha(int i) {}
+            public void setAlpha(int i) {
+            }
+
             @Override
-            public void setColorFilter(@Nullable ColorFilter colorFilter) {}
-            @Deprecated @Override
+            public void setColorFilter(@Nullable ColorFilter colorFilter) {
+            }
+
+            @Deprecated
+            @Override
             public int getOpacity() {
                 return PixelFormat.TRANSPARENT;
             }
         }
 
-        private static float[] calcRadii(float ...radii) {
+        private static float[] calcRadii(float... radii) {
             if (radii.length == 0) {
-                return new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+                return new float[]{0, 0, 0, 0, 0, 0, 0, 0};
             } else if (radii.length == 1) {
-                return new float[] { dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]) };
+                return new float[]{dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0])};
             } else if (radii.length == 2) {
-                return new float[] { dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[1]), dp(radii[1]) };
+                return new float[]{dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[1]), dp(radii[1])};
             } else if (radii.length == 3) {
-                return new float[] { dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[2]), dp(radii[2]), dp(radii[2]), dp(radii[2]) };
+                return new float[]{dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[2]), dp(radii[2]), dp(radii[2]), dp(radii[2])};
             } else if (radii.length < 8) {
-                return new float[] { dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[2]), dp(radii[2]), dp(radii[3]), dp(radii[3]) };
+                return new float[]{dp(radii[0]), dp(radii[0]), dp(radii[1]), dp(radii[1]), dp(radii[2]), dp(radii[2]), dp(radii[3]), dp(radii[3])};
             } else {
-                return new float[] { dp(radii[0]), dp(radii[1]), dp(radii[2]), dp(radii[3]), dp(radii[4]), dp(radii[5]), dp(radii[6]), dp(radii[7]) };
+                return new float[]{dp(radii[0]), dp(radii[1]), dp(radii[2]), dp(radii[3]), dp(radii[4]), dp(radii[5]), dp(radii[6]), dp(radii[7])};
             }
         }
-        private static boolean hasNonzeroRadii(float ...radii) {
+
+        private static boolean hasNonzeroRadii(float... radii) {
             for (int i = 0; i < Math.min(8, radii.length); ++i) {
                 if (radii[i] > 0) {
                     return true;
@@ -6663,6 +6828,7 @@ public class Theme {
         }
 
         private static float[] tempHSV;
+
         public static int calcRippleColor(int backgroundColor) {
             if (tempHSV == null) {
                 tempHSV = new float[3];
@@ -6689,6 +6855,7 @@ public class Theme {
             radii[0] = radii[1] = radii[2] = radii[3] = AndroidUtilities.dp(top);
             radii[4] = radii[5] = radii[6] = radii[7] = AndroidUtilities.dp(bottom);
         }
+
         public RippleRadMaskDrawable(float topLeft, float topRight, float bottomRight, float bottomLeft) {
             radii[0] = radii[1] = AndroidUtilities.dp(topLeft);
             radii[2] = radii[3] = AndroidUtilities.dp(topRight);
@@ -6702,6 +6869,7 @@ public class Theme {
             invalidatePath = true;
             invalidateSelf();
         }
+
         public void setRadius(float topLeft, float topRight, float bottomRight, float bottomLeft) {
             radii[0] = radii[1] = AndroidUtilities.dp(topLeft);
             radii[2] = radii[3] = AndroidUtilities.dp(topRight);
@@ -6797,6 +6965,7 @@ public class Theme {
             return stateListDrawable;
         }
     }
+
     public static Drawable createRadSelectorDrawable(int color, int topLeftRad, int topRightRad, int bottomRightRad, int bottomLeftRad) {
         if (Build.VERSION.SDK_INT >= 21) {
             maskPaint.setColor(0xffffffff);
@@ -7424,6 +7593,7 @@ public class Theme {
     }
 
     private static float[] tmpHSV5;
+
     public static int changeColorAccent(float[] baseHsv, float[] accentHsv, int color, boolean isDarkTheme) {
         if (tmpHSV5 == null) {
             tmpHSV5 = new float[3];
@@ -7887,7 +8057,7 @@ public class Theme {
         }
 
         if (night) {
-            if (currentTheme != currentNightTheme && (currentTheme == null || currentNightTheme != null &&  currentTheme.isDark() != currentNightTheme.isDark())) {
+            if (currentTheme != currentNightTheme && (currentTheme == null || currentNightTheme != null && currentTheme.isDark() != currentNightTheme.isDark())) {
                 isInNigthMode = true;
                 lastThemeSwitchTime = SystemClock.elapsedRealtime();
                 switchingNightTheme = true;
@@ -9178,7 +9348,7 @@ public class Theme {
                 chat_timePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             }
 
-            final float[] emojiSizePercents = new float[] {.68f, .46f, .34f, .28f, .22f, .19f};
+            final float[] emojiSizePercents = new float[]{.68f, .46f, .34f, .28f, .22f, .19f};
             for (int i = 0; i < chat_msgTextPaintEmoji.length; ++i) {
                 chat_msgTextPaintEmoji[i] = new TextPaint(Paint.ANTI_ALIAS_FLAG);
                 chat_msgTextPaintEmoji[i].setTextSize(AndroidUtilities.dp(emojiSizePercents[i] * 120f));
@@ -9832,6 +10002,7 @@ public class Theme {
     }
 
     private static int[] viewPos = new int[2];
+
     public static void applyServiceShaderMatrixForView(View view, View background) {
         if (view == null || background == null) {
             return;
@@ -10038,7 +10209,8 @@ public class Theme {
     private static ColorFilter currentShareColorFilter;
     private static int currentShareColorFilterColor;
     private static ColorFilter currentShareSelectedColorFilter;
-    private static  int currentShareSelectedColorFilterColor;
+    private static int currentShareSelectedColorFilterColor;
+
     public static ColorFilter getShareColorFilter(int color, boolean selected) {
         if (selected) {
             if (currentShareSelectedColorFilter == null || currentShareSelectedColorFilterColor != color) {
@@ -10160,6 +10332,7 @@ public class Theme {
         }
         return getColor(key);
     }
+
     public static int getColor(String key) {
         return getColor(key, null, false);
     }

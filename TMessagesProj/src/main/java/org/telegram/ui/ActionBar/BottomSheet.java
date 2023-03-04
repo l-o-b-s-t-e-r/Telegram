@@ -94,6 +94,7 @@ public class BottomSheet extends Dialog {
 
     private CharSequence[] items;
     private int[] itemIcons;
+    private Integer selectedIndex;
     private View customView;
     private CharSequence title;
     private boolean bigTitle;
@@ -784,6 +785,7 @@ public class BottomSheet extends Dialog {
     public static class BottomSheetCell extends FrameLayout {
 
         private final Theme.ResourcesProvider resourcesProvider;
+        private final int selectedColor = 0xFF0093EE;
         private TextView textView;
         private ImageView imageView;
         int currentType;
@@ -793,6 +795,10 @@ public class BottomSheet extends Dialog {
         }
 
         public BottomSheetCell(Context context, int type, Theme.ResourcesProvider resourcesProvider) {
+            this(context, type, false, resourcesProvider);
+        }
+
+        public BottomSheetCell(Context context, int type, boolean isSelected, Theme.ResourcesProvider resourcesProvider) {
             super(context);
             this.resourcesProvider = resourcesProvider;
 
@@ -802,7 +808,7 @@ public class BottomSheet extends Dialog {
 
             imageView = new ImageView(context);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
-            imageView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));
+            imageView.setColorFilter(new PorterDuffColorFilter(isSelected ? selectedColor : getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));
             addView(imageView, LayoutHelper.createFrame(56, 48, Gravity.CENTER_VERTICAL | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT)));
 
             textView = new TextView(context);
@@ -811,18 +817,18 @@ public class BottomSheet extends Dialog {
             textView.setGravity(Gravity.CENTER_HORIZONTAL);
             textView.setEllipsize(TextUtils.TruncateAt.END);
             if (type == 0) {
-                textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
+                textView.setTextColor(isSelected ? selectedColor : getThemedColor(Theme.key_dialogTextBlack));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
                 addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL));
             } else if (type == 1) {
                 textView.setGravity(Gravity.CENTER);
-                textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
+                textView.setTextColor(isSelected ? selectedColor : getThemedColor(Theme.key_dialogTextBlack));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                 textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
                 addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
             } else if (type == 2) {
                 textView.setGravity(Gravity.CENTER);
-                textView.setTextColor(getThemedColor(Theme.key_featuredStickers_buttonText));
+                textView.setTextColor(isSelected ? selectedColor : getThemedColor(Theme.key_featuredStickers_buttonText));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                 textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
                 textView.setBackground(Theme.AdaptiveRipple.filledRect(getThemedColor(Theme.key_featuredStickers_addButton), 6));
@@ -1112,7 +1118,7 @@ public class BottomSheet extends Dialog {
                     if (items[a] == null) {
                         continue;
                     }
-                    BottomSheetCell cell = new BottomSheetCell(getContext(), 0, resourcesProvider);
+                    BottomSheetCell cell = new BottomSheetCell(getContext(), 0, a == selectedIndex, resourcesProvider);
                     cell.setTextAndIcon(items[a], itemIcons != null ? itemIcons[a] : 0, null, bigTitle);
                     containerView.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.LEFT | Gravity.TOP, 0, topOffset, 0, 0));
                     topOffset += 48;
@@ -1669,6 +1675,14 @@ public class BottomSheet extends Dialog {
         public Builder setItems(CharSequence[] items, int[] icons, final OnClickListener onClickListener) {
             bottomSheet.items = items;
             bottomSheet.itemIcons = icons;
+            bottomSheet.onClickListener = onClickListener;
+            return this;
+        }
+
+        public Builder setItems(CharSequence[] items, int[] icons, int selectedIndex, final OnClickListener onClickListener) {
+            bottomSheet.items = items;
+            bottomSheet.itemIcons = icons;
+            bottomSheet.selectedIndex = selectedIndex;
             bottomSheet.onClickListener = onClickListener;
             return this;
         }
