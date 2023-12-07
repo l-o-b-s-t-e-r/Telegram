@@ -67,7 +67,6 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Property;
 import android.util.SparseArray;
@@ -305,7 +304,9 @@ import org.telegram.ui.Components.URLSpanUserMention;
 import org.telegram.ui.Components.UndoView;
 import org.telegram.ui.Components.UnreadCounterTextView;
 import org.telegram.ui.Components.ViewHelper;
+import org.telegram.ui.Components.spoilers.DisintegrationEffects;
 import org.telegram.ui.Components.spoilers.SpoilerEffect;
+import org.telegram.ui.Components.spoilers.DisintegrationEffect;
 import org.telegram.ui.Components.voip.CellFlickerDrawable;
 import org.telegram.ui.Components.voip.VoIPHelper;
 import org.telegram.ui.Delegates.ChatActivityMemberRequestsDelegate;
@@ -335,6 +336,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//ChatActivity
 @SuppressWarnings("unchecked")
 public class ChatActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate, LocationActivity.LocationActivityDelegate, ChatAttachAlertDocumentLayout.DocumentSelectActivityDelegate, ChatActivityInterface, FloatingDebugProvider, InstantCameraView.Delegate {
     private final static boolean PULL_DOWN_BACK_FRAGMENT = false;
@@ -1062,6 +1064,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
     private PinchToZoomHelper pinchToZoomHelper;
     public EmojiAnimationsOverlay emojiAnimationsOverlay;
+    public DisintegrationEffects disintegrationEffectsOverlay;
     public float drawingChatLisViewYoffset;
     public int blurredViewTopOffset;
     public int blurredViewBottomOffset;
@@ -5335,6 +5338,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     });
                 }
             };
+            chatListItemAnimator.setRemoveDelay(250);
+            chatListItemAnimator.setRemoveDuration(0);
         }
 
         chatLayoutManager = new GridLayoutManagerFixed(context, 1000, LinearLayoutManager.VERTICAL, true) {
@@ -7316,6 +7321,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 updateMessagesVisiblePart(false);
             }
         };
+        if (DisintegrationEffects.supports()) {
+            disintegrationEffectsOverlay = new DisintegrationEffects();
+        }
         actionBar.setDrawBlurBackground(contentView);
 
         if (isTopic) {
@@ -13658,6 +13666,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 pullingDownDrawable = null;
             }
             emojiAnimationsOverlay.onDetachedFromWindow();
+            disintegrationEffectsOverlay.onDetachedFromWindow();
             AndroidUtilities.runOnUIThread(() -> {
                 ReactionsEffectOverlay.removeCurrent(true);
             });
@@ -20659,6 +20668,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         return sponsoredMessagesCount;
     }
 
+    //processDeletedMessages
     private void processDeletedMessages(ArrayList<Integer> markAsDeletedMessages, long channelId) {
         ArrayList<Integer> removedIndexes = new ArrayList<>();
         int loadIndex = 0;

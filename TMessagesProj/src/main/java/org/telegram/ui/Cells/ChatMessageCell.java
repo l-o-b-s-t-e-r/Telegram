@@ -9,6 +9,7 @@
 package org.telegram.ui.Cells;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
+import static org.telegram.ui.ActionBar.Theme.key_chat_outBubble;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -1239,6 +1240,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private Path drillHolePath;
 
     private Path mediaSpoilerPath = new Path();
+    private Path disintegrationPath = new Path();
     private float[] mediaSpoilerRadii = new float[8];
     private SpoilerEffect mediaSpoilerEffect = new SpoilerEffect();
     private float mediaSpoilerRevealProgress;
@@ -10333,7 +10335,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     Theme.chat_roundVideoShadow.setAlpha(wasAlpha);
 
                     if (!photoImage.hasBitmapImage() || photoImage.getCurrentAlpha() != 1) {
-                        Theme.chat_docBackPaint.setColor(getThemedColor(currentMessageObject.isOutOwner() ? Theme.key_chat_outBubble : Theme.key_chat_inBubble));
+                        Theme.chat_docBackPaint.setColor(getThemedColor(currentMessageObject.isOutOwner() ? key_chat_outBubble : Theme.key_chat_inBubble));
                         canvas.drawCircle(photoImage.getCenterX(), photoImage.getCenterY(), photoImage.getImageWidth() / 2, Theme.chat_docBackPaint);
                     }
                 }
@@ -10996,6 +10998,56 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
         });
         animator.start();
+    }
+
+    public int currentBackgroundColor() {
+        if (currentMessageObject.isOutOwner() && !currentMessageObject.shouldDrawWithoutBackground()) {
+            return resourcesProvider.getColor(key_chat_outBubble);
+        } else {
+            return 0;
+        }
+    }
+
+    public Rect createRectForBitmap() {
+        int left, right, bottom, top;
+        final int msgType = currentMessageObject.type;
+
+        int additionalRightPadding = 0;
+        if (currentMessageObject.isOutOwner() && (msgType == MessageObject.TYPE_TEXT || msgType == MessageObject.TYPE_VOICE || msgType == MessageObject.TYPE_FILE || msgType == MessageObject.TYPE_CONTACT || msgType == MessageObject.TYPE_PHONE_CALL || msgType == MessageObject.TYPE_POLL)) {
+            additionalRightPadding = AndroidUtilities.dp(12);
+        }
+
+        left = getBackgroundDrawableLeft();
+        right = left + backgroundWidth - additionalRightPadding;
+        bottom = getBackgroundDrawableBottom();
+        top = getBackgroundDrawableTop();
+
+        return new Rect(left, top, right, bottom);
+    }
+
+    public Bitmap createMessageCellBitmap(Rect rect) {
+        int w = rect.right - rect.left;
+        int h = rect.bottom - rect.top;
+
+        if (w > 0 && h > 0) {
+            Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.translate(-rect.left, -rect.top);
+            int backgroundColor = currentBackgroundColor();
+            if (backgroundColor != 0) {
+                disintegrationPath.rewind();
+                final RectF boundsF = new RectF(rect.left, rect.top, rect.right, rect.bottom);
+                int radius = AndroidUtilities.dp(16f);
+                disintegrationPath.addRoundRect(boundsF, radius, radius, Path.Direction.CW);
+                canvas.clipPath(disintegrationPath);
+                canvas.drawColor(backgroundColor);
+            }
+            this.draw(canvas);
+
+            return bitmap;
+        } else {
+            return null;
+        }
     }
 
     private void drawBlurredPhoto(Canvas canvas) {
@@ -18894,7 +18946,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                             int key = Theme.key_checkboxCheck;
                             if (currentMessageObject.isOutOwner()) {
                                 if (getThemedColor(key) == 0xffffffff) {
-                                    key = Theme.key_chat_outBubble;
+                                    key = key_chat_outBubble;
                                 }
                             }
                             pollCheckBox[a].setColor(-1, currentMessageObject.isOutOwner() ? Theme.key_chat_outAudioSeekbarFill : Theme.key_chat_inAudioSeekbarFill, key);
@@ -19108,7 +19160,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 int size = AndroidUtilities.dp(20);
                 mediaCheckBox.setBackgroundType(radialProgress.getMiniIcon() != MediaActionDrawable.ICON_NONE ? 12 : 13);
                 mediaCheckBox.setBounds(buttonX + AndroidUtilities.dp(28), buttonY + AndroidUtilities.dp(28), size, size);
-                mediaCheckBox.setColor(currentMessageObject.isOutOwner() ? Theme.key_chat_outTimeText : Theme.key_chat_inTimeText, currentMessageObject.isOutOwner() ? Theme.key_chat_outLoader : Theme.key_chat_inLoader, currentMessageObject.isOutOwner() ? Theme.key_chat_outBubble : Theme.key_chat_inBubble);
+                mediaCheckBox.setColor(currentMessageObject.isOutOwner() ? Theme.key_chat_outTimeText : Theme.key_chat_inTimeText, currentMessageObject.isOutOwner() ? Theme.key_chat_outLoader : Theme.key_chat_inLoader, currentMessageObject.isOutOwner() ? key_chat_outBubble : Theme.key_chat_inBubble);
                 mediaCheckBox.setBackgroundDrawable(isDrawSelectionBackground() ? currentBackgroundSelectedDrawable : currentBackgroundDrawable);
             } else {
                 int size = AndroidUtilities.dp(21);
@@ -20941,7 +20993,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     changed = true;
                 }
             }
-            
+
             if (mediaOffsetY != lastMediaOffsetY) {
                 animateFromMediaOffsetY = lastMediaOffsetY;
                 animateMediaOffsetY = true;

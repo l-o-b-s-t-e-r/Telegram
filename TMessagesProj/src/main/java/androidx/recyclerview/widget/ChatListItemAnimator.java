@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
@@ -26,6 +28,7 @@ import org.telegram.ui.ChatActivity;
 import org.telegram.ui.Components.ChatGreetingsView;
 import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.RecyclerListView;
+import org.telegram.ui.Components.spoilers.DisintegrationEffects;
 import org.telegram.ui.TextMessageEnterTransition;
 import org.telegram.ui.VoiceMessageEnterTransition;
 
@@ -57,6 +60,8 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
     private boolean reversePositions;
     private final Theme.ResourcesProvider resourcesProvider;
 
+    public DisintegrationEffects disintegrationEffectsOverlay;
+
     public ChatListItemAnimator(ChatActivity activity, RecyclerListView listView, Theme.ResourcesProvider resourcesProvider) {
         this.resourcesProvider = resourcesProvider;
         this.activity = activity;
@@ -64,6 +69,9 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
         translationInterpolator = DEFAULT_INTERPOLATOR;
         alwaysCreateMoveAnimationIfPossible = true;
         setSupportsChangeAnimations(false);
+        if (DisintegrationEffects.supports()) {
+            disintegrationEffectsOverlay = new DisintegrationEffects();
+        }
     }
 
     @Override
@@ -138,7 +146,7 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
                 @Override
                 public void run() {
                     for (MoveInfo moveInfo : moves) {
-                        animateMoveImpl(moveInfo.holder, moveInfo);
+                        animateMoveImpl(moveInfo.holder, moveInfo, removalsPending);
                     }
                     moves.clear();
                     mMovesList.remove(moves);
@@ -220,7 +228,7 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
             moves.addAll(mPendingMoves);
             mPendingMoves.clear();
             for (MoveInfo moveInfo : moves) {
-                animateMoveImpl(moveInfo.holder, moveInfo);
+                animateMoveImpl(moveInfo.holder, moveInfo, removalsPending);
             }
             moves.clear();
         }
@@ -660,6 +668,10 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
 
     @Override
     protected void animateMoveImpl(RecyclerView.ViewHolder holder, MoveInfo moveInfo) {
+        animateMoveImpl(holder, moveInfo, false);
+    }
+
+    private void animateMoveImpl(RecyclerView.ViewHolder holder, MoveInfo moveInfo, boolean removalsPending) {
         int fromX = moveInfo.fromX;
         int fromY = moveInfo.fromY;
         int toX = moveInfo.toX;
@@ -668,6 +680,9 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
         final int deltaY = toY - fromY;
 
         AnimatorSet animatorSet = new AnimatorSet();
+        if (removalsPending) {
+            animatorSet.setStartDelay(250);
+        }
 
         if (deltaY != 0) {
             animatorSet.playTogether(ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, 0));
@@ -845,7 +860,11 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
         if (translationInterpolator != null) {
             animatorSet.setInterpolator(translationInterpolator);
         }
-        animatorSet.setDuration(getMoveDuration());
+        if (removalsPending) {
+            animatorSet.setDuration(500);
+        } else {
+            animatorSet.setDuration(getMoveDuration());
+        }
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animator) {
@@ -1371,6 +1390,7 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
         animatorSet.start();
     }
 
+    //animateRemoveImpl
     protected void animateRemoveImpl(final RecyclerView.ViewHolder holder) {
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("animate remove impl");
@@ -1381,6 +1401,28 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
 
         dispatchRemoveStarting(holder);
 
+        if (holder.itemView instanceof ChatMessageCell) {
+            ChatMessageCell messageCell = (ChatMessageCell) holder.itemView;
+            int msgTop = (int) messageCell.getY();
+            int recyclerListViewHeight = recyclerListView.getMeasuredHeight();
+            Rect msgRect = messageCell.createRectForBitmap();
+            Bitmap bitmap;
+            if (msgTop + msgRect.bottom > recyclerListViewHeight) {
+                Rect newMsgRect = new Rect(msgRect.left, msgRect.top, msgRect.right, recyclerListViewHeight - msgTop);
+                bitmap = messageCell.createMessageCellBitmap(newMsgRect);
+            } else if (msgTop < 0) {
+                Rect newMsgRect = new Rect(msgRect.left, msgRect.top - msgTop, msgRect.right, msgRect.bottom);
+                bitmap = messageCell.createMessageCellBitmap(newMsgRect);
+                msgTop = 0;
+            } else {
+                bitmap = messageCell.createMessageCellBitmap(msgRect);
+            }
+            if (bitmap != null) {
+                disintegrationEffectsOverlay.addNewEffect(recyclerListView, bitmap, msgTop + bitmap.getHeight(), msgRect.left);
+            }
+        }
+
+        animator.setStartDelay(getRemoveDelay());
         animator.setDuration(getRemoveDuration());
         animator.addListener(
                 new AnimatorListenerAdapter() {
@@ -1431,6 +1473,7 @@ public class ChatListItemAnimator extends DefaultItemAnimator {
     }
 
     public void onDestroy() {
+        disintegrationEffectsOverlay.onDetachedFromWindow();
         onAllAnimationsDone();
     }
 
