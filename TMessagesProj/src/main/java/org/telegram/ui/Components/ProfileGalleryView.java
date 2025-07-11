@@ -7,10 +7,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -93,6 +97,8 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
     private boolean hasActiveVideo;
     private int customAvatarIndex = -1;
     private int fallbackPhotoIndex = -1;
+    private boolean blurBottom;
+    private float blurBottomHeight;
     private TLRPC.GroupCallParticipant participant;
 
     private int imagesLayerNum;
@@ -252,7 +258,7 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
                 progressToCustomAvatar = 2f - progressToCustomAvatar;
             }
 
-            progressToCustomAvatar = Utilities.clamp(progressToCustomAvatar, 1f ,0);
+            progressToCustomAvatar = Utilities.clamp(progressToCustomAvatar, 1f, 0);
         }
         setCustomAvatarProgress(progressToCustomAvatar);
     }
@@ -266,6 +272,10 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
     }
 
     public ProfileGalleryView(Context context, long dialogId, ActionBar parentActionBar, RecyclerListView parentListView, ProfileActivity.AvatarImageView parentAvatarImageView, int parentClassGuid, Callback callback) {
+        this(context, dialogId, parentActionBar, parentListView, parentAvatarImageView, parentClassGuid, callback, false, 0f);
+    }
+
+    public ProfileGalleryView(Context context, long dialogId, ActionBar parentActionBar, RecyclerListView parentListView, ProfileActivity.AvatarImageView parentAvatarImageView, int parentClassGuid, Callback callback, boolean blurBottom, float blurBottomHeight) {
         super(context);
         setVisibility(View.GONE);
         setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -279,6 +289,8 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
         setAdapter(adapter = new ViewPagerAdapter(getContext(), parentAvatarImageView, parentActionBar));
         this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         this.callback = callback;
+        this.blurBottom = blurBottom;
+        this.blurBottomHeight = blurBottomHeight;
 
         addOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -425,7 +437,7 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
         if (pinchToZoomHelper != null && getCurrentItemView() != null) {
             if (action != MotionEvent.ACTION_DOWN && isDownReleased && !pinchToZoomHelper.isInOverlayMode()) {
                 pinchToZoomHelper.checkPinchToZoom(MotionEvent.obtain(0, 0, MotionEvent.ACTION_CANCEL, 0, 0, 0), this, getCurrentItemView().getImageReceiver(), null, null, null);
-            } else if (pinchToZoomHelper.checkPinchToZoom(ev, this, getCurrentItemView().getImageReceiver(), null, null,null)) {
+            } else if (pinchToZoomHelper.checkPinchToZoom(ev, this, getCurrentItemView().getImageReceiver(), null, null, null)) {
                 if (!isDownReleased) {
                     isDownReleased = true;
                     callback.onRelease();
@@ -1141,6 +1153,8 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
             }
             if (item.imageView == null) {
                 item.imageView = new AvatarImageView(context, position, placeholderPaint);
+                item.imageView.setBlurAllowed(true);
+                item.imageView.setHasBlur(true);
                 imageViews.set(position, item.imageView);
             }
 
@@ -1210,7 +1224,7 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
             item.imageView.getImageReceiver().setDelegate(new ImageReceiver.ImageReceiverDelegate() {
                 @Override
                 public void didSetImage(ImageReceiver imageReceiver, boolean set, boolean thumb, boolean memCache) {
-
+                    item.imageView.onNewImageSet();
                 }
 
                 @Override
@@ -1316,7 +1330,7 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
         imagesLocationsSizes.clear();
         imagesUploadProgress.clear();
         adapter.notifyDataSetChanged();
-        setCurrentItem(0 , false);
+        setCurrentItem(0, false);
         selectedPage = 0;
         uploadingImageLocation = null;
         prevImageLocation = null;
@@ -1373,17 +1387,28 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
         public boolean isVideo;
         private final int position;
         private final Paint placeholderPaint;
+        private final Paint gradientPaint;
+        private final RectF gradientRect;
 
         public AvatarImageView(Context context, int position, Paint placeholderPaint) {
             super(context);
             this.position = position;
             this.placeholderPaint = placeholderPaint;
+            this.gradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            this.gradientRect = new RectF();
             setLayerNum(imagesLayerNum);
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
+            if (blurBottom) {
+                final LinearGradient shader = new LinearGradient(0, 0, 0, getHeight() - AndroidUtilities.dp(blurBottomHeight), new int[]{Color.BLACK, Color.BLACK, Color.TRANSPARENT}, new float[]{0, 0.9f, 1}, Shader.TileMode.CLAMP);
+                gradientPaint.setShader(shader);
+                gradientPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+                gradientRect.set(new RectF(0, 0, getWidth(), getHeight() - AndroidUtilities.dp(blurBottomHeight)));
+            }
+
             if (radialProgress != null) {
                 int paddingTop = (parentActionBar.getOccupyStatusBar() ? AndroidUtilities.statusBarHeight : 0) + ActionBar.getCurrentActionBarHeight();
                 int paddingBottom = AndroidUtilities.dp2(80f);
@@ -1467,7 +1492,28 @@ public class ProfileGalleryView extends CircularViewPager implements Notificatio
                     canvas.drawPath(path, placeholderPaint);
                 }
             }
-            super.onDraw(canvas);
+
+            if (blurBottom) {
+                ImageReceiver imageReceiver = animatedEmojiDrawable != null ? animatedEmojiDrawable.getImageReceiver() : this.imageReceiver;
+                if (imageReceiver == null) {
+                    return;
+                }
+                if (animatedEmojiDrawable != null && animatedEmojiDrawableColorFilter != null) {
+                    animatedEmojiDrawable.setColorFilter(animatedEmojiDrawableColorFilter);
+                }
+
+                imageReceiver.setImageCoords(0, 0, getWidth(), getHeight() - AndroidUtilities.dp(blurBottomHeight));
+                blurImageReceiver.setImageCoords(0, 0, getWidth(), getHeight());
+
+                blurImageReceiver.draw(canvas);
+
+                int saveLayer = canvas.saveLayer(gradientRect, null, Canvas.ALL_SAVE_FLAG);
+                imageReceiver.draw(canvas);
+                canvas.drawRect(0, 0, getWidth(), getHeight(), gradientPaint);
+                canvas.restoreToCount(saveLayer);
+            } else {
+                super.onDraw(canvas);
+            }
 
             if (radialProgress != null && radialProgress.getOverrideAlpha() > 0f) {
                 radialProgress.draw(canvas);

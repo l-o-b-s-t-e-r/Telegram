@@ -1180,7 +1180,6 @@
     <string name="FromFormatted">From %1$s</string>
     <string name="SearchFrom">from:</string>
     <string name="NoRecent">No recent</string>
-    <string name="Message">Message</string>
     <string name="TypeMessage">Message</string>
     <string name="TypeMessageIn">Message in %1$s</string>
     <string name="TypeMessageForStars">Message for ⭐️%s</string>
@@ -1791,6 +1790,7 @@
     <string name="InviteToGroupByLink">Invite to Group via Link</string>
     <string name="InviteLink">Invite Link</string>
     <string name="InviteLinkPrivate">Invite Link only works for group members</string>
+    <string name="InviteLinkTopic">This topic link will only work for group members</string>
     <string name="InviteLinks">Invite Links</string>
     <string name="RevokeAlert">Are you sure you want to revoke this link? Once the link is revoked, no one will be able to join using it.</string>
     <string name="RevokeAlertNewLink">The previous invite link is now inactive. A new link has been generated.</string>
@@ -3577,7 +3577,6 @@
     <string name="Added">Added</string>
     <string name="Edit">Edit</string>
     <string name="Send">Send</string>
-    <string name="Call">Call</string>
     <string name="VideoCall">Video Call</string>
     <string name="Copy">Copy</string>
     <string name="Restrict">Restrict</string>
@@ -3590,7 +3589,6 @@
     <string name="DeletePhoto">Remove photo</string>
     <string name="Set">Set</string>
     <string name="OK">OK</string>
-    <string name="Stop">Stop</string>
     <string name="WaitMore">Wait more</string>
     <string name="Continue">Continue</string>
     <string name="CreateLink">Create Link</string>
@@ -5223,7 +5221,6 @@
     <string name="MuteForAlert">Mute notifications for...</string>
     <string name="MuteForButton">Mute for %s</string>
     <string name="DeleteMessagesOptionAlsoChat">Also clear for all members</string>
-    <string name="Mute">Mute</string>
     <string name="SoundOnHint">You will receive notifications with sound.</string>
     <string name="SoundOffHint">"You will receive silent notifications. "</string>
     <string name="NotificationsSound">Notification Sound</string>
@@ -5240,7 +5237,6 @@
     <string name="InvalidFormatError">Invalid format</string>
     <string name="SaveForNotifications">Save for notifications</string>
     <string name="SoundAdded">Sound added</string>
-    <string name="Unmute">Unmute</string>
     <string name="AutoDeleteAfteTitle">Auto-delete after...</string>
     <string name="DeleteTones_one">Delete %d tone</string>
     <string name="DeleteTones_other">Delete %d tones</string>
@@ -6312,7 +6308,6 @@
     <string name="StoriesMovedToContacts">Stories of **%s** were moved to **Archive**.</string>
     <string name="StoriesMovedToDialogs">Stories of **%s** were moved to **Chats**.</string>
     <string name="StoryShared">Story shared</string>
-    <string name="AddStory">Add Story</string>
     <string name="StoryDrafts_one">%d Draft</string>
     <string name="StoryDrafts_other">%d Drafts</string>
     <string name="StorySoundMuted">Sound is now muted.</string>
@@ -9269,4 +9264,20 @@
     <string name="RecordingTrimText">Audio outside that range will be discarded, and recording will start immediately.</string>
     <string name="MessageAuthorSentBy">Sent by **%s**</string>
     <string name="ChannelOpenDirect">Direct Messages</string>
+    <string name="Message">Message</string>
+    <string name="Mute">Mute</string>
+    <string name="Unmute">Unmute</string>
+    <string name="Share">Share</string>
+    <string name="Stop">Stop</string>
+    <string name="Call">Call</string>
+    <string name="Video">Video</string>
+    <string name="Join">Join</string>
+    <string name="Report">Report</string>
+    <string name="Leave">Leave</string>
+    <string name="Discuss">Discuss</string>
+    <string name="Gift">Gift</string>
+    <string name="LiveStream">Live Stream</string>
+    <string name="AddStory">Add Story</string>
+    <string name="VoiceChat">Voice Chat</string>
+    <string name="ChangeProfilePhoto">Change Profile Photo</string>
 </resources>

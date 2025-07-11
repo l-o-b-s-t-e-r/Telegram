@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.MessagesController;
@@ -43,7 +42,9 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
     private final ProfileActivity.AvatarImageView avatarImage;
     private final Theme.ResourcesProvider resourcesProvider;
 
-    public ProfileGiftsView(Context context, int currentAccount, long dialogId, @NonNull View avatarContainer, ProfileActivity.AvatarImageView avatarImage, Theme.ResourcesProvider resourcesProvider) {
+    private final ActionBar actionBar;
+
+    public ProfileGiftsView(Context context, int currentAccount, long dialogId, @NonNull View avatarContainer, ProfileActivity.AvatarImageView avatarImage, Theme.ResourcesProvider resourcesProvider, ActionBar actionBar) {
         super(context);
 
         this.currentAccount = currentAccount;
@@ -54,9 +55,11 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
 
         this.resourcesProvider = resourcesProvider;
 
+        this.actionBar = actionBar;
     }
 
     private float expandProgress;
+
     public void setExpandProgress(float progress) {
         if (this.expandProgress != progress) {
             this.expandProgress = progress;
@@ -64,7 +67,17 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
         }
     }
 
+    private float collapsingProgress;
+
+    public void setCollapsingProgress(float progress) {
+        if (this.collapsingProgress != progress) {
+            this.collapsingProgress = progress;
+            invalidate();
+        }
+    }
+
     private float actionBarProgress;
+
     public void setActionBarActionMode(float progress) {
 //        if (Theme.isCurrentThemeDark()) {
 //            return;
@@ -101,6 +114,7 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
     }
 
     private float progressToInsets = 1f;
+
     public void setProgressToStoriesInsets(float progressToInsets) {
         if (this.progressToInsets == progressToInsets) {
             return;
@@ -188,11 +202,11 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
         }
 
         public void draw(
-            Canvas canvas,
-            float cx, float cy,
-            float ascale, float rotate,
-            float alpha,
-            float gradientAlpha
+                Canvas canvas,
+                float cx, float cy,
+                float ascale, float rotate,
+                float alpha,
+                float gradientAlpha
         ) {
             if (alpha <= 0.0f) return;
             final float gsz = dp(45);
@@ -282,7 +296,7 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
             if (oldGift != null) {
                 g.copy(oldGift);
             } else {
-                g.gradient = new RadialGradient(0, 0, dp(22.5f), new int[] { g.color, Theme.multAlpha(g.color, 0.0f) }, new float[] { 0, 1 }, Shader.TileMode.CLAMP);
+                g.gradient = new RadialGradient(0, 0, dp(22.5f), new int[]{g.color, Theme.multAlpha(g.color, 0.0f)}, new float[]{0, 1}, Shader.TileMode.CLAMP);
                 g.gradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
                 g.gradientPaint.setShader(g.gradient);
                 if (g.document != null) {
@@ -325,12 +339,15 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
         if (gifts.isEmpty() || expandProgress >= 1.0f) return;
 
         final float ax = avatarContainer.getX();
-        final float ay = avatarContainer.getY();
-        final float aw = (avatarContainer.getWidth()) * avatarContainer.getScaleX();
+        final float ay = (actionBar != null && actionBar.getOccupyStatusBar() ? AndroidUtilities.statusBarHeight : 0) + AndroidUtilities.dp(8);
+        final float aw = avatarContainer.getWidth();
         final float ah = (avatarContainer.getHeight()) * avatarContainer.getScaleY();
+        float h = ((actionBar != null && actionBar.getOccupyStatusBar() ? AndroidUtilities.statusBarHeight : 0) + AndroidUtilities.dp(8) + avatarContainer.getHeight() / 2f) * 2f;
+        float targetX = getWidth() / 2f;
+        float targetY = avatarContainer.getY() + avatarContainer.getHeight() / 2f;
 
         canvas.save();
-        canvas.clipRect(0, 0, getWidth(), expandY);
+        canvas.clipRect(0, 0, getWidth(), h);
 
         final float acx = ax + aw / 2.0f;
         final float cacx = Math.min(acx, dp(48));
@@ -340,82 +357,62 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
 
         final float closedAlpha = Utilities.clamp01((float) (expandY - (AndroidUtilities.statusBarHeight + ActionBar.getCurrentActionBarHeight())) / dp(50));
 
+        float newY = 0f;
+        float newX = 0f;
+        float newProgress;
+
         for (int i = 0; i < gifts.size(); ++i) {
             final Gift gift = gifts.get(i);
             final float alpha = gift.animatedFloat.set(1.0f);
             final float scale = lerp(0.5f, 1.0f, alpha);
             final int index = i; // gifts.size() == maxCount ? i - 1 : i;
             if (index == 0) {
-                gift.draw(
-                    canvas,
-                    (float) (acx + ar * Math.cos(-65 / 180.0f * Math.PI)),
-                    (float) (acy + ar * Math.sin(-65 / 180.0f * Math.PI)),
-                    scale, -65 + 90,
-                    alpha * (1.0f - expandProgress), lerp(0.9f, 0.25f, actionBarProgress)
-                );
+                newProgress = collapsingProgress <= 0.8 && collapsingProgress >= 0.4 ? AndroidUtilities.lerp(0f, 1f, (collapsingProgress - 0.4f) / 0.4f) : collapsingProgress > 0.8 ? 1f : 0f;
+                newX = AndroidUtilities.lerp(targetX, ax + aw + AndroidUtilities.dp(45), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + AndroidUtilities.dp(5), newProgress);
             } else if (index == 1) {
-                gift.draw(
-                    canvas,
-                    lerp(cacx + Math.min(getWidth() * .27f, dp(62)), cx, 0.5f * actionBarProgress), acy - dp(52),
-                    scale, -4.0f,
-                    alpha * alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newProgress = collapsingProgress >= 0.7 ? AndroidUtilities.lerp(0f, 1f, (collapsingProgress - 0.7f) / 0.3f) : 0f;
+                newX = AndroidUtilities.lerp(targetX, ax - AndroidUtilities.dp(20), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay, newProgress);
             } else if (index == 2) {
-                gift.draw(
-                    canvas,
-                    lerp(cacx + Math.min(getWidth() * .46f, dp(105)), cx, 0.5f * actionBarProgress), acy - dp(72),
-                    scale, 8.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newProgress = collapsingProgress <= 0.8 ? AndroidUtilities.lerp(0f, 1f, collapsingProgress / 0.8f) : 1f;
+                newX = AndroidUtilities.lerp(targetX, ax - AndroidUtilities.dp(50), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + AndroidUtilities.dp(30), newProgress);
             } else if (index == 3) {
-                gift.draw(
-                    canvas,
-                    lerp(cacx + Math.min(getWidth() * .60f, dp(136)), cx, 0.5f * actionBarProgress), acy - dp(46),
-                    scale, 3.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newProgress = collapsingProgress <= 0.8 && collapsingProgress >= 0.4 ? AndroidUtilities.lerp(0f, 1f, (collapsingProgress - 0.4f) / 0.4f) : collapsingProgress > 0.8 ? 1f : 0f;
+                newX = AndroidUtilities.lerp(targetX, ax - AndroidUtilities.dp(35), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + AndroidUtilities.dp(60), newProgress);
             } else if (index == 4) {
-                gift.draw(
-                    canvas,
-                    lerp(cacx + Math.min(getWidth() * .08f, dp(21.6f)), cx, 0.5f * actionBarProgress), acy - dp(82f),
-                    scale, -3.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newProgress = collapsingProgress >= 0.7 ? AndroidUtilities.lerp(0f, 1f, (collapsingProgress - 0.7f) / 0.3f) : 0f;
+                newX = AndroidUtilities.lerp(targetX, ax + aw + AndroidUtilities.dp(35), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + AndroidUtilities.dp(60), newProgress);
             } else if (index == 5) {
-                gift.draw(
-                    canvas,
-                    lerp(cacx + Math.min(getWidth() * .745f, dp(186)), cx, 0.5f * actionBarProgress), acy - dp(39),
-                    scale, 2.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newProgress = collapsingProgress <= 0.8 ? AndroidUtilities.lerp(0f, 1f, collapsingProgress / 0.8f) : 1f;
+                newX = AndroidUtilities.lerp(targetX, ax + aw + AndroidUtilities.dp(70), newProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + AndroidUtilities.dp(35), newProgress);
             } else if (index == 6) {
-                gift.draw(
-                    canvas,
-                    cacx + Math.min(getWidth() * .38f, dp(102)), expandY - dp(12),
-                    scale, 0,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newX = AndroidUtilities.lerp(targetX, ax - AndroidUtilities.dp(80), collapsingProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + ah + AndroidUtilities.dp(10), collapsingProgress);
             } else if (index == 7) {
-                gift.draw(
-                    canvas,
-                    cacx + Math.min(getWidth() * .135f, dp(36)), expandY - dp(17.6f),
-                    scale, -5.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
-                );
+                newX = AndroidUtilities.lerp(targetX, ax + aw + AndroidUtilities.dp(50), collapsingProgress);
+                newY = AndroidUtilities.lerp(targetY, ay + ah + AndroidUtilities.dp(10), collapsingProgress);
             } else if (index == 8) {
                 gift.draw(
-                    canvas,
-                    cacx + Math.min(getWidth() * .76f, dp(178)), expandY - dp(21.66f),
-                    scale, 5.0f,
-                    alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
-                    1.0f
+                        canvas,
+                        ax + aw / 2f + AndroidUtilities.dp(30), ay - AndroidUtilities.dp(20),
+                        scale, -4.0f,
+                        alpha * alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
+                        1.0f
+                );
+            }
+
+            if (index <= 8) {
+                gift.draw(
+                        canvas,
+                        newX, newY,
+                        scale, -4.0f,
+                        alpha * alpha * (1.0f - expandProgress) * (1.0f - actionBarProgress) * (closedAlpha),
+                        1.0f
                 );
             }
         }
@@ -432,6 +429,7 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
     }
 
     private Gift pressedGift;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final Gift hit = getGiftUnder(event.getX(), event.getY());

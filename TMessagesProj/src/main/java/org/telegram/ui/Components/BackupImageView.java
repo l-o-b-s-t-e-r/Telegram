@@ -109,6 +109,10 @@ public class BackupImageView extends View {
         }
     }
 
+    public ImageReceiver getBlurImageReceiver() {
+        return blurImageReceiver;
+    }
+
     public void setOrientation(int angle, boolean center) {
         imageReceiver.setOrientation(angle, center);
     }

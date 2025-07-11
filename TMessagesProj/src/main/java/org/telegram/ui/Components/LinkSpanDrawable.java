@@ -42,7 +42,7 @@ import java.util.ArrayList;
 
 public class LinkSpanDrawable<S extends CharacterStyle> {
 
-    private static final int CORNER_RADIUS_DP = 4;
+    private static final int CORNER_RADIUS_DP = 16;
 
     private int cornerRadius;
     private int color;
@@ -870,6 +870,10 @@ public class LinkSpanDrawable<S extends CharacterStyle> {
             return ColorUtils.setAlphaComponent(getTextColor(), (int) (Color.alpha(getTextColor()) * .1175f));
         }
 
+        private int getBackgroundColor() {
+            return Theme.isCurrentThemeDark() ? 0x1FFFFFFF : 0x1F000000;
+        }
+
         private final LinkCollector links = new LinkCollector(this);
         private final Paint linkBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -877,7 +881,7 @@ public class LinkSpanDrawable<S extends CharacterStyle> {
         protected void onDraw(Canvas canvas) {
             if (isClickable()) {
                 AndroidUtilities.rectTmp.set(0, 0, getPaddingLeft() + getTextWidth() + getPaddingRight(), getHeight());
-                linkBackgroundPaint.setColor(getLinkColor());
+                linkBackgroundPaint.setColor(getBackgroundColor());
                 canvas.drawRoundRect(AndroidUtilities.rectTmp, dp(CORNER_RADIUS_DP), dp(CORNER_RADIUS_DP), linkBackgroundPaint);
             }
 

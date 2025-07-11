@@ -32,7 +32,6 @@ import com.google.zxing.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ChatObject;
-import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.ImageReceiver;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
@@ -179,6 +178,7 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
     }
 
     private TL_stories.PeerStories peerStories;
+
     public void setStories(TL_stories.PeerStories peerStories) {
         this.peerStories = peerStories;
         updateStories(true, false);
@@ -348,7 +348,7 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
                     break;
                 }
             }
-            
+
             if (index == -1) {
                 storyItem.dialogId = dialogId;
                 StoryCircle circle = new StoryCircle(storyItem);
@@ -408,6 +408,7 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
     }
 
     private float expandProgress;
+
     public void setExpandProgress(float progress) {
         if (this.expandProgress != progress) {
             this.expandProgress = progress;
@@ -416,6 +417,7 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
     }
 
     private float actionBarProgress;
+
     public void setActionBarActionMode(float progress) {
         if (Theme.isCurrentThemeDark()) {
             return;
@@ -452,7 +454,7 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
             newStoryBounce.cancel();
         }
 
-        final boolean[] vibrated = new boolean[] { false };
+        final boolean[] vibrated = new boolean[]{false};
 
         newStoryBounce = ValueAnimator.ofFloat(0, 1);
         newStoryBounce.addUpdateListener(anm -> {
@@ -467,12 +469,12 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
         newStoryBounce.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-            if (!vibrated[0]) {
-                vibrated[0] = true;
-                vibrateNewStory();
-            }
-            newStoryBounceT = 1;
-            invalidate();
+                if (!vibrated[0]) {
+                    vibrated[0] = true;
+                    vibrateNewStory();
+                }
+                newStoryBounceT = 1;
+                invalidate();
             }
         });
         newStoryBounce.setInterpolator(new OvershootInterpolator(3.0f));
@@ -485,14 +487,11 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        float rright = rightAnimated.set(this.right);
         float avatarPullProgress = Utilities.clamp((avatarContainer.getScaleX() - 1f) / 0.4f, 1f, 0f);
-        float insetMain = AndroidUtilities.lerp(AndroidUtilities.dpf2(4f), AndroidUtilities.dpf2(3.5f), avatarPullProgress);
-        insetMain *= progressToInsets;
-        float ax = avatarContainer.getX() + insetMain * avatarContainer.getScaleX();
-        float ay = avatarContainer.getY() + insetMain * avatarContainer.getScaleY();
-        float aw = (avatarContainer.getWidth() - insetMain * 2) * avatarContainer.getScaleX();
-        float ah = (avatarContainer.getHeight() - insetMain * 2) * avatarContainer.getScaleY();
+        float ax = avatarContainer.getX() + (1f - avatarContainer.getScaleX()) * avatarContainer.getWidth() / 2f;
+        float ay = avatarContainer.getY() + (1f - avatarContainer.getScaleY()) * avatarContainer.getHeight() / 2f;
+        float aw = avatarContainer.getWidth() * avatarContainer.getScaleX();
+        float ah = avatarContainer.getHeight() * avatarContainer.getScaleY();
         rect1.set(ax, ay, ax + aw, ay + ah);
 
         float maxX = this.left;
@@ -955,9 +954,9 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
         float cx = lerp(a.centerX(), b.centerX(), t);
         float cy = lerp(a.centerY(), b.centerY(), t);
         float r = lerp(
-            Math.min(a.width(), a.height()),
-            Math.min(b.width(), b.height()),
-            t
+                Math.min(a.width(), a.height()),
+                Math.min(b.width(), b.height()),
+                t
         ) / 2f;
         c.set(cx - r, cy - r, cx + r, cy + r);
     }
@@ -1071,7 +1070,8 @@ public class ProfileStoriesView extends View implements NotificationCenter.Notif
                         float bcy = bounds.centerY(); // bounds.centerX() - (aRect.centerY() - bRect.centerY()) * scale;
                         float w2 = bRect.width() / 2f * scale, h2 = bRect.height() / 2f * scale;
                         nextCircle.cachedRect.set(bcx - w2, bcy - h2, bcx + w2, bcy + h2);
-                    } catch (Exception ignore) {}
+                    } catch (Exception ignore) {
+                    }
 
                     clipCircle(canvas, circle, nextCircle);
 
